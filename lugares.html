@@ -411,7 +411,14 @@ function sideView(t){var g=GEO.table(t);if(!g)return [0,0,ROOM_W,ROOM_H];if(g.ki
 
 </script>
 <script>
-(function(){
+/* load the latest seating published from the planner; fall back to the copy saved in this page */
+(function(){var go=null,live,done=false;function fin(d){if(done)return;done=true;window.__LIVE=d;if(go)go()}
+  window.__boot=function(f){go=f;if(done)f()};setTimeout(function(){fin(null)},3000);
+  try{fetch("https://ester-prince-default-rtdb.firebaseio.com/lugares.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(d){
+    if(d&&d.tables&&d.guests){var arr=function(x){return Array.isArray(x)?x.filter(Boolean):Object.keys(x||{}).map(function(k){return x[k]})};d.tables=arr(d.tables);d.guests=arr(d.guests);d.fixtures=arr(d.fixtures);fin(d.guests.length?d:null)}else fin(null)}).catch(function(){fin(null)})}catch(e){fin(null)}})();
+</script>
+<script>
+window.__boot(function(){
 "use strict";
 /* ===== Settings ===== */
 var FIREBASE="https://ester-prince-default-rtdb.firebaseio.com";
@@ -420,6 +427,7 @@ var STAFF_PIN="2410";
 var PDF_FILE="mapa-de-lugares.pdf";
 
 var DATA;try{DATA=JSON.parse(document.getElementById("seating").textContent)}catch(e){DATA=null}
+if(window.__LIVE)DATA=window.__LIVE;
 window.ROOM_FX=DATA&&DATA.fixtures&&DATA.fixtures.length?DATA.fixtures:null;
 var app=document.getElementById("app");
 if(!DATA||!DATA.guests){app.innerHTML='<div class="empty"><strong>Seating data is missing.</strong> Export this page again from the seating planner.</div>';return}
@@ -624,7 +632,7 @@ function renderQR(b){
 
 /* ===== start ===== */
 if(/^#?recepcao$/i.test(location.hash.replace(/^#/,"")))receptionView();else guestView();
-})();
+});
 </script>
 </body>
 </html>
