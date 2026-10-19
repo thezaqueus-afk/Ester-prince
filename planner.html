@@ -1,0 +1,1801 @@
+<!doctype html>
+<html lang="pt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><title>Ester &amp; Prince · Mapa de lugares</title></head><body>
+
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500;6..96,600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: working tool. Header with event tabs + stats, then a two-pane board:
+   guest list with a table dropdown per guest (left), table place-cards with seat diagrams (right). */
+:root{
+  --bg:#F7F2EC; --surface:#FFFDFA; --sunk:#EFE6DC; --line:#E0D2C2; --line-strong:#C9B5A0;
+  --fg:#2A1C13; --muted:#76604F; --accent:#8A5A34; --accent-ink:#FFFDFA; --accent-soft:#EEDFCE;
+  --ok:#4C7546; --warn:#B0602A; --bad:#A13628; --bad-soft:#F6DED8;
+  --g1:#8A5A34; --g2:#5F7A55; --g3:#6E5A8A; --g4:#A0573F; --g5:#3F6E7A; --g6:#8A7334;
+  --font-display:"Bodoni Moda","Didot","Bodoni 72",Georgia,serif;
+  --font-body:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:10px; --r-sm:7px;
+  --shadow:0 1px 2px rgba(60,35,15,.06),0 6px 20px -12px rgba(60,35,15,.25);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#2B221C; --surface:#362B23; --sunk:#241C17; --line:#4A3C31; --line-strong:#655243;
+  --fg:#F6EEE5; --muted:#C9B7A6; --accent:#DDAA74; --accent-ink:#2B1D13; --accent-soft:#4A3828;
+  --ok:#9CCB93; --warn:#EBA86F; --bad:#EE907D; --bad-soft:#4D2A22;
+  --g1:#CF9C66; --g2:#9DBF8F; --g3:#B5A2D6; --g4:#E09A80; --g5:#86BBC6; --g6:#D6BE78;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -14px rgba(0,0,0,.7);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#2B221C; --surface:#362B23; --sunk:#241C17; --line:#4A3C31; --line-strong:#655243;
+  --fg:#F6EEE5; --muted:#C9B7A6; --accent:#DDAA74; --accent-ink:#2B1D13; --accent-soft:#4A3828;
+  --ok:#9CCB93; --warn:#EBA86F; --bad:#EE907D; --bad-soft:#4D2A22;
+  --g1:#CF9C66; --g2:#9DBF8F; --g3:#B5A2D6; --g4:#E09A80; --g5:#86BBC6; --g6:#D6BE78;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -14px rgba(0,0,0,.7);
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1360px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:22px}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+
+/* header */
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 24px}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+h1{font-family:var(--font-display);font-weight:500;font-size:clamp(34px,5vw,50px);line-height:1;margin:6px 0 0;letter-spacing:-.01em;text-wrap:balance}
+h1 em{font-style:italic;color:var(--accent)}
+.head-r{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.seg button svg{width:14px;height:14px;vertical-align:-2px;margin-right:5px}
+@media (max-width:520px){.head-r{align-items:flex-start;flex-direction:row;flex-wrap:wrap}}
+.save{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.save .dot{width:8px;height:8px;border-radius:50%;background:var(--ok)}
+.save.busy .dot{background:var(--warn);animation:pulse 1s infinite}
+.save.local .dot{background:var(--line-strong)}
+@keyframes pulse{50%{opacity:.35}}
+
+.tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.tab{appearance:none;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:12px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;transition:border-color .15s}
+.tab:hover{border-color:var(--line-strong)}
+.tab[aria-selected="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--accent-soft)}
+.tab b{font-family:var(--font-display);font-weight:500;font-size:20px;display:block;line-height:1.15}
+.tab small{color:var(--muted);font-size:13px}
+.tab .tab-count{font-size:13px;color:var(--muted);white-space:nowrap}
+
+/* stats */
+.stats{display:flex;flex-wrap:wrap;gap:8px 28px;align-items:center;padding:14px 18px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.stat{display:flex;flex-direction:column;min-width:70px}
+.stat .v{font-family:var(--font-display);font-size:28px;line-height:1.05;font-variant-numeric:lining-nums tabular-nums}
+.stat .l{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.stat.alert .v{color:var(--bad)}
+.progress{flex:1 1 200px;display:flex;flex-direction:column;gap:6px;min-width:160px}
+.bar{height:8px;border-radius:99px;background:var(--sunk);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .3s}
+.progress span{font-size:13px;color:var(--muted)}
+
+/* toolbar */
+.toolbar{display:flex;flex-wrap:wrap;gap:8px}
+.btn{appearance:none;border:1px solid var(--line-strong);background:var(--surface);border-radius:var(--r-sm);padding:8px 14px;font-weight:600;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;line-height:1.2}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08);color:var(--accent-ink)}
+.btn.danger{border-color:var(--bad);color:var(--bad)}
+.btn.ghost{border-color:transparent;background:transparent;padding:6px 8px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn svg{width:16px;height:16px;flex:none}
+
+.banner{padding:10px 14px;border-radius:var(--r-sm);background:var(--accent-soft);color:var(--fg);font-size:14px}
+
+/* board */
+.switch{display:none;background:var(--sunk);border-radius:99px;padding:4px;gap:4px}
+.switch button{flex:1;border:0;background:transparent;border-radius:99px;padding:8px;font-weight:600;cursor:pointer;color:var(--muted)}
+.switch button[aria-pressed="true"]{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
+.board{display:grid;grid-template-columns:minmax(320px,400px) minmax(0,1fr);gap:20px;align-items:start}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);min-width:0}
+.panel-h{padding:16px 16px 12px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:12px}
+.panel-h h2{font-family:var(--font-display);font-weight:500;font-size:22px;margin:0;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.panel-h h2 small{font-family:var(--font-body);font-size:13px;color:var(--muted);font-weight:500}
+.guests-panel{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);max-height:calc(100vh - 24px);display:flex;flex-direction:column}
+.field{width:100%;border:1px solid var(--line-strong);background:var(--bg);border-radius:var(--r-sm);padding:8px 10px;min-width:0}
+.field:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.row{display:flex;gap:8px;align-items:center}
+.row > *{min-width:0}
+.addg{display:grid;grid-template-columns:1fr 120px auto;gap:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.fchip{appearance:none;border:1px solid var(--line);background:transparent;border-radius:99px;padding:4px 11px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted)}
+.fchip[aria-pressed="true"]{background:var(--fg);border-color:var(--fg);color:var(--bg)}
+.fchip .num{opacity:.75;margin-left:3px}
+select.group-filter{border:1px solid var(--line);background:transparent;border-radius:99px;padding:4px 10px;font-size:13px;font-weight:600;color:var(--muted);max-width:160px}
+
+.glist{overflow:auto;flex:1;padding:0 8px 10px;min-height:200px}
+.glist.by-cat .gmeta .chip{display:none}
+.gsec{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:12px 8px 6px;display:flex;justify-content:space-between}
+.grow{display:grid;grid-template-columns:minmax(0,1fr) minmax(120px,46%);gap:8px;align-items:center;padding:7px 8px;border-radius:var(--r-sm)}
+.grow:hover{background:var(--bg)}
+.grow.editing{background:var(--accent-soft)}
+.gname{appearance:none;border:0;background:none;padding:0;text-align:left;cursor:pointer;font-weight:600;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;display:block}
+.gname:hover{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+.gmeta{display:flex;gap:6px;align-items:center;min-width:0;margin-top:2px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.chip::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--c,var(--line-strong));flex:none}
+.party{font-size:11.5px;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:99px;padding:1px 7px;white-space:nowrap}
+.tlist b.party{padding:0 6px;font-size:11px;margin-left:2px}
+.acc-tools{display:flex;justify-content:space-between;align-items:center;padding:10px 8px 6px;font-size:12px;color:var(--muted);font-weight:600}
+.linkbtn{appearance:none;border:0;background:none;color:var(--accent);font-weight:700;font-size:12.5px;cursor:pointer;padding:3px 6px;border-radius:5px}
+.linkbtn:hover:not(:disabled){background:var(--accent-soft)}
+.linkbtn:disabled{color:var(--muted);opacity:.5;cursor:default}
+.acc{border-bottom:1px solid var(--line);margin:0 -8px}
+.acc-h{appearance:none;width:100%;border:0;cursor:pointer;text-align:left;font:inherit}
+.acc-h:hover{background:var(--bg)!important}
+.acc-t{display:flex;align-items:center;gap:7px;min-width:0}
+.acc-n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chev{width:12px;height:12px;flex:none;color:var(--muted);transition:transform .18s}
+.acc.open .chev{transform:rotate(90deg)}
+.acc-c{display:flex;align-items:center;gap:8px;flex:none}
+.acc-bar{width:44px;height:4px;border-radius:99px;background:var(--sunk);overflow:hidden;display:inline-block}
+.acc-bar b{display:block;height:100%;background:var(--accent);border-radius:99px}
+.acc.done .acc-bar b{background:var(--ok)}
+.acc.done .acc-c{color:var(--ok)}
+.tick{width:12px;height:12px}
+.acc-b{padding:0 8px 8px}
+.acc.open .acc-h{border-bottom:0}
+.gsec.cat{position:sticky;top:0;background:var(--surface);z-index:1;margin:0;padding:12px 16px 10px;text-transform:none;letter-spacing:0;font-size:13.5px;color:var(--fg)}
+.gsec.cat .acc-t{display:flex;align-items:center;gap:7px;font-family:var(--font-display);font-size:17px;font-weight:500}
+.gsec.cat i{width:9px;height:9px;border-radius:50%;background:var(--c)}
+.gsec.cat .num{font-size:12px;color:var(--muted);font-weight:600;align-self:center}
+.seg.sm{padding:2px}.seg.sm button{padding:4px 10px;font-size:12.5px}
+.note{font-size:12px;color:var(--muted);font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seat{width:100%;appearance:none;-webkit-appearance:none;border:1px solid var(--line-strong);border-radius:var(--r-sm);background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23927A66' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right 10px center;padding:7px 28px 7px 10px;font-size:13.5px;cursor:pointer;text-overflow:ellipsis}
+.seat.unseated{border-style:dashed;color:var(--muted);background-color:var(--bg)}
+.seat:disabled{cursor:not-allowed;opacity:.6}
+.gedit{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:6px 0 4px}
+.gedit label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--muted);font-weight:600}
+.gedit .full{grid-column:1/-1}
+.gedit .acts{grid-column:1/-1;display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap}
+.empty{padding:28px 18px;text-align:center;color:var(--muted);display:flex;flex-direction:column;gap:12px;align-items:center}
+.empty h3{font-family:var(--font-display);font-weight:500;font-size:21px;color:var(--fg);margin:0}
+.empty p{margin:0;max-width:40ch}
+
+/* tables */
+.tables-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.tables-h h2{font-family:var(--font-display);font-weight:500;font-size:22px;margin:0}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;align-items:start}
+.tcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 14px 12px;display:flex;flex-direction:column;gap:10px;min-width:0;transition:border-color .2s}
+.tcard.full{border-color:color-mix(in srgb,var(--ok) 45%,var(--line))}
+.tcard.over{border-color:var(--bad);background:linear-gradient(var(--bad-soft),var(--bad-soft)) top/100% 4px no-repeat,var(--surface)}
+.tcard.flash{animation:flash .7s}
+@keyframes flash{0%{box-shadow:0 0 0 3px var(--accent)}100%{box-shadow:0 0 0 0 transparent}}
+.thead{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.tname{font-family:var(--font-display);font-size:21px;font-weight:500;line-height:1.1;overflow-wrap:anywhere}
+.tsub{font-size:12px;color:var(--muted);margin-top:2px}
+.tcount{font-size:13px;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--sunk);white-space:nowrap}
+.tcard.full .tcount{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok)}
+.tcard.over .tcount{background:var(--bad);color:var(--surface)}
+.diagram{display:flex;justify-content:center}
+.diagram svg{width:100%;max-width:190px;height:auto;overflow:visible}
+.tlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px;counter-reset:s}
+.tlist li{display:grid;grid-template-columns:22px minmax(0,1fr) auto;align-items:center;gap:6px;padding:4px 4px 4px 2px;border-radius:6px;font-size:14px;counter-increment:s}
+.tlist li::before{content:counter(s);font-size:11.5px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.tlist li:hover{background:var(--bg)}
+.tlist li.overseat{color:var(--bad)}
+.tlist .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.tlist .nm i{width:7px;height:7px;border-radius:50%;background:var(--c,var(--line-strong));flex:none}
+.x{appearance:none;border:0;background:none;color:var(--muted);cursor:pointer;width:26px;height:26px;border-radius:6px;display:grid;place-items:center;font-size:17px;line-height:1}
+.x:hover{background:var(--sunk);color:var(--bad)}
+.tempty{font-size:13px;color:var(--muted);font-style:italic;padding:2px 4px}
+.tedit{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tedit label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--muted);font-weight:600}
+.tedit .full{grid-column:1/-1}
+.tedit .acts{grid-column:1/-1;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.icon-btn{appearance:none;border:1px solid transparent;background:none;border-radius:6px;cursor:pointer;color:var(--muted);padding:4px;display:grid;place-items:center}
+.icon-btn:hover{border-color:var(--line);color:var(--fg)}
+.icon-btn svg{width:16px;height:16px}
+
+/* floor plan */
+.seg{display:flex;background:var(--sunk);border-radius:99px;padding:3px;gap:3px}
+.seg button{border:0;background:transparent;border-radius:99px;padding:6px 14px;font-weight:600;font-size:13px;cursor:pointer;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
+.floor-layout{display:flex;flex-direction:column;gap:14px}
+.floor-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);-webkit-overflow-scrolling:touch}
+.floor-svg{display:block;width:100%;min-width:680px;height:auto}
+.pista{font-family:var(--font-display);font-size:104px;fill:var(--line-strong);text-anchor:middle;dominant-baseline:middle;letter-spacing:.14em}
+.fx-l{font-size:19px;fill:var(--muted);text-anchor:middle;dominant-baseline:middle;font-family:var(--font-body);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.ft{cursor:pointer;outline:none;--tf:var(--bg)}
+.ft.part{--tf:var(--accent-soft)}
+.ft.full{--tf:color-mix(in srgb,var(--ok) 28%,var(--surface))}
+.ft.over{--tf:var(--bad-soft)}
+.ft-top{fill:var(--tf);stroke:var(--line-strong);stroke-width:1.5}
+.ft-top-s{stroke:var(--tf)}
+.ft-edge{stroke:var(--line-strong)}
+.ft.over .ft-top,.ft.over .ft-edge{stroke:var(--bad)}
+.ch{fill:var(--surface);stroke:var(--line-strong);stroke-width:1.5}
+.ch.on{fill:var(--accent);stroke:var(--accent)}
+.ft-name{font-family:var(--font-display);font-size:25px;font-weight:600;fill:var(--fg);text-anchor:middle;paint-order:stroke;stroke:var(--surface);stroke-width:5px}
+.ft-cnt{font-family:var(--font-body);font-size:17px;font-weight:700;fill:var(--muted);text-anchor:middle;font-variant-numeric:tabular-nums;paint-order:stroke;stroke:var(--surface);stroke-width:4px}
+.ft.over .ft-cnt{fill:var(--bad)}
+.ft.full .ft-cnt{fill:var(--ok)}
+.ft:hover .ft-top,.ft:focus-visible .ft-top{stroke:var(--accent);stroke-width:3}
+.ft:hover .ft-edge,.ft:focus-visible .ft-edge{stroke:var(--accent)}
+.ft.sel .ft-top{stroke:var(--accent);stroke-width:5}
+.ft.sel .ft-edge{stroke:var(--accent);stroke-width:46}
+.ft.sel .ft-name,.ft.hit .ft-name{fill:var(--accent)}
+.ft.hit .ft-top{stroke:var(--accent);stroke-width:3;stroke-dasharray:7 5}
+.ft.hit .ft-edge{stroke:var(--accent)}
+.ft.flash{animation:fflash .8s}
+@keyframes fflash{0%{filter:drop-shadow(0 0 8px var(--accent))}100%{filter:none}}
+.floor-foot{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:start}
+#detail .tcard{max-width:560px}
+.swipe-hint{display:none;margin:-6px 0 0;font-size:12.5px;color:var(--muted)}
+@media (max-width:700px){.swipe-hint{display:block}}
+.offplan{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:10px 12px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+.detail-hint{padding:16px;border:1px dashed var(--line-strong);border-radius:var(--r);color:var(--muted);font-size:14px;max-width:560px}
+.detail-hint strong{color:var(--fg)}
+.legend{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px;font-size:13px;color:var(--muted)}
+.legend li{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.legend i{width:18px;height:12px;border-radius:3px;border:1px solid var(--line-strong);display:inline-block}
+.legend i.dot{width:12px;border-radius:50%}
+@media (max-width:640px){.floor-foot{grid-template-columns:minmax(0,1fr)}.legend{flex-direction:row;flex-wrap:wrap;gap:6px 14px}}
+
+/* drag and drop */
+[data-drag]{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.grow[data-drag],.tlist li[data-drag],.pop li[data-drag]{cursor:grab}
+body.dragging,body.dragging *{cursor:grabbing!important}
+.drag-src{opacity:.35}
+.ghost:not(.btn){position:fixed;left:0;top:0;z-index:100;pointer-events:none;background:var(--fg);color:var(--bg);padding:7px 12px;border-radius:99px;font-weight:600;font-size:13.5px;display:flex;align-items:center;gap:7px;box-shadow:0 10px 30px -8px rgba(0,0,0,.45);white-space:nowrap;max-width:280px}
+.ghost i{width:8px;height:8px;border-radius:50%;background:var(--c);flex:none}
+.ghost b{font-size:11px;background:var(--accent);color:var(--accent-ink);border-radius:99px;padding:1px 7px}
+.ghost[data-hint]:not([data-hint=""])::after{content:attr(data-hint);position:absolute;top:100%;left:8px;margin-top:5px;font-size:11.5px;font-weight:600;background:var(--surface);color:var(--fg);border:1px solid var(--line);padding:2px 8px;border-radius:6px}
+.ft.drop-ok .ft-top{stroke:var(--ok);stroke-width:6}
+.ft.drop-ok .ft-edge{stroke:var(--ok);stroke-width:50}
+.ft.drop-bad .ft-top{stroke:var(--bad);stroke-width:6}
+.ft.drop-bad .ft-edge{stroke:var(--bad);stroke-width:50}
+.tcard.drop-ok,.pop.drop-ok,.offchip.drop-ok{box-shadow:0 0 0 3px var(--ok)}
+.tcard.drop-bad,.pop.drop-bad,.offchip.drop-bad{box-shadow:0 0 0 3px var(--bad)}
+.guests-panel.drop-ok,.tray.drop-ok{box-shadow:0 0 0 3px var(--warn)}
+#floor{position:relative}
+.pop{position:absolute;z-index:5;width:250px;max-width:calc(100% - 12px);background:var(--surface);border:1px solid var(--line-strong);border-radius:12px;box-shadow:0 18px 40px -16px rgba(40,20,5,.45);display:flex;flex-direction:column}
+.pop.anim{animation:popin .18s ease-out}
+@keyframes popin{from{opacity:0;transform:translateY(4px)}}
+.pop-h{display:flex;align-items:center;gap:8px;padding:10px 8px 8px 12px;border-bottom:1px solid var(--line)}
+.pop-h b{font-family:var(--font-display);font-weight:600;font-size:18px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pop-h .num{font-size:12.5px;font-weight:700;color:var(--muted)}
+.pop-h .num.bad{color:var(--bad)}
+.pop ol{list-style:none;margin:0;padding:6px;max-height:260px;overflow:auto;display:flex;flex-direction:column;gap:1px}
+.pop li{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:3px 4px 3px 8px;border-radius:6px;font-size:13.5px}
+.pop li:hover{background:var(--bg)}
+.pop li span{display:flex;align-items:center;gap:6px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pop li i{width:7px;height:7px;border-radius:50%;background:var(--c);flex:none}
+.pop li .x{width:22px;height:22px;font-size:15px}
+.pop p{margin:0;padding:12px;font-size:13px;color:var(--muted)}
+.pop-f{padding:7px 12px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);font-weight:600}
+li.new{background:var(--accent-soft)!important;animation:newname 2.6s ease-out}
+@keyframes newname{0%{box-shadow:inset 3px 0 0 var(--accent)}100%{box-shadow:inset 3px 0 0 transparent}}
+.tray{display:none;flex-direction:column;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;margin-bottom:12px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 6px);z-index:6}
+.tray-h{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+.tray-h strong{color:var(--fg)}
+.tray-list{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+.tchip{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;border:1px solid var(--line-strong);background:var(--bg);border-radius:99px;padding:6px 11px;font-size:13px;font-weight:600;cursor:grab;flex:none}
+.tchip i{width:7px;height:7px;border-radius:50%;background:var(--c)}
+.tchip b{font-size:10.5px;background:var(--accent-soft);color:var(--accent);border-radius:99px;padding:0 6px}
+@media (max-width:860px){.tray:not([hidden]){display:flex}}
+
+[hidden]{display:none!important}
+/* room features */
+.fx-box{fill:var(--sunk);stroke:var(--line-strong);stroke-width:1.2}
+.fx-deck{fill:none;stroke:var(--line-strong);stroke-width:1.5}
+.fx-t,.fx-l{font-size:19px;fill:var(--muted);text-anchor:middle;dominant-baseline:middle;font-family:var(--font-body);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.fx-entry{fill:var(--accent)}
+.fx-dance{fill:var(--sunk);stroke:none}
+.fx-dance-t{font-family:var(--font-display);fill:var(--line-strong);text-anchor:middle;dominant-baseline:middle;letter-spacing:.14em;text-transform:uppercase}
+.layout-mode .fx{cursor:move;touch-action:none}
+.layout-mode .fx .fx-box,.layout-mode .fx .fx-dance{stroke:var(--line-strong);stroke-width:1.5;stroke-dasharray:6 4}
+.fx.selected .fx-box,.fx.selected .fx-dance,.ft.picked .ft-top{stroke:var(--accent)!important;stroke-width:5!important;stroke-dasharray:none!important}
+.ft.picked .ft-edge{stroke:var(--accent)!important;stroke-width:48!important}
+.fx.moving,.ft.moving{opacity:.82;pointer-events:none}
+.fx.flash{animation:fflash .8s}
+.ch.pend{fill:var(--warn);stroke:var(--warn)}
+/* layout toolbox + inspector */
+.toolbox{display:flex;flex-direction:column;gap:8px;padding:10px 12px;border:1px dashed var(--accent);border-radius:var(--r);background:var(--surface)}
+.tb-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.tb-lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700;min-width:64px}
+.tb-item{appearance:none;display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line-strong);background:var(--bg);border-radius:9px;padding:5px 10px 5px 6px;font-size:13px;font-weight:600;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.tb-item:hover{border-color:var(--accent);color:var(--accent)}
+.tb-item svg{width:30px;height:22px;flex:none}
+.tb-item svg *{stroke:currentColor;fill:none;stroke-width:1.6}
+.tb-item svg .f{fill:var(--sunk)}
+.tb-hint{font-size:12.5px;color:var(--muted)}
+.inspector{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.inspector .in-title{font-family:var(--font-display);font-size:18px;font-weight:600;margin-right:4px}
+.in-f{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);font-weight:600}
+.in-f input,.in-f select{border:1px solid var(--line-strong);background:var(--bg);border-radius:7px;padding:5px 8px;font-size:13.5px;min-width:0}
+.in-f input[type=text]{width:150px}
+.in-step{display:inline-flex;align-items:center;border:1px solid var(--line-strong);border-radius:99px;overflow:hidden;background:var(--bg)}
+.in-step button{appearance:none;border:0;background:none;width:30px;height:28px;font-size:16px;cursor:pointer;color:var(--fg)}
+.in-step button:hover{background:var(--accent-soft)}
+.in-step output{min-width:30px;text-align:center;font-weight:700;font-size:13px}
+.in-sp{flex:1}
+/* rsvp */
+.rsvp{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:12px 16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.rsvp h3{margin:0;font-family:var(--font-display);font-weight:500;font-size:19px;min-width:120px}
+.rs-pill{appearance:none;display:flex;flex-direction:column;align-items:flex-start;gap:0;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:7px 12px;cursor:pointer;min-width:118px;text-align:left}
+.rs-pill b{font-family:var(--font-display);font-size:24px;font-weight:500;line-height:1;font-variant-numeric:tabular-nums lining-nums}
+.rs-pill span{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.rs-pill small{font-size:11.5px;color:var(--muted)}
+.rs-pill.confirmed b{color:var(--ok)}.rs-pill.pending b{color:var(--warn)}.rs-pill.declined b{color:var(--bad)}
+.rs-pill[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--accent-soft)}
+.rs-bar{flex:1 1 200px;display:flex;height:9px;border-radius:99px;overflow:hidden;background:var(--sunk);min-width:160px}
+.rs-bar i{display:block;height:100%}
+.rs-bar .c{background:var(--ok)}.rs-bar .p{background:var(--warn)}.rs-bar .d{background:var(--bad)}
+.st-pill{display:inline-flex;align-items:center;font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:1px 7px;border-radius:99px;white-space:nowrap}
+.st-pill.pending{background:color-mix(in srgb,var(--warn) 20%,transparent);color:var(--warn)}
+.st-pill.declined{background:var(--bad-soft);color:var(--bad)}
+.grow.declined .gname{text-decoration:line-through;text-decoration-color:var(--bad);opacity:.7}
+.pend-mark{color:var(--warn);font-weight:800;margin-left:4px}
+.gd-status{grid-column:1/-1;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.gd-status .seg button[data-v="confirmed"][aria-pressed="true"]{color:var(--ok)}
+.gd-status .seg button[data-v="pending"][aria-pressed="true"]{color:var(--warn)}
+.gd-status .seg button[data-v="declined"][aria-pressed="true"]{color:var(--bad)}
+.gd-status small{color:var(--muted);font-size:12px}
+.lang-seg button{min-width:38px}
+/* table language + alcohol */
+.ttags,.pop-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.pop-tags{margin:0;padding:8px 12px 0}
+.ttag{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.ttag svg{width:12px;height:12px}
+.ttag.lang{background:var(--sunk);color:var(--fg)}
+.ttag.alc.yes{background:color-mix(in srgb,var(--g3) 16%,transparent);color:var(--g3)}
+.ttag.alc.no{background:var(--sunk);color:var(--muted)}
+.ft-lang{fill:var(--sunk);stroke:var(--line-strong);stroke-width:1}
+.ft-lang-t{font-family:var(--font-body);font-size:16px;font-weight:800;fill:var(--fg);text-anchor:middle;letter-spacing:.04em}
+.ft-alc rect{stroke-width:1}
+.ft-alc.yes rect{fill:color-mix(in srgb,var(--g3) 18%,var(--surface));stroke:var(--g3)}
+.ft-alc.yes path{stroke:var(--g3)}
+.ft-alc.no rect{fill:var(--sunk);stroke:var(--line-strong)}
+.ft-alc.no path{stroke:var(--muted)}
+.lg-lang{font-size:10px;font-weight:800;border:1px solid var(--line-strong);background:var(--sunk);color:var(--fg);border-radius:99px;padding:0 5px;line-height:14px}
+.lg-alc{display:inline-grid;place-items:center;width:18px;height:14px;border-radius:99px;border:1px solid}
+.lg-alc svg{width:11px;height:11px}
+.lg-alc.yes{color:var(--g3);border-color:var(--g3)}
+.lg-alc.no{color:var(--muted);border-color:var(--line-strong)}
+
+/* quick table settings */
+.qset{display:flex;flex-direction:column;gap:6px}
+.qrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.qlbl{font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;min-width:66px}
+.qset .seg.sm button{padding:4px 10px;font-size:12.5px;display:inline-flex;align-items:center;gap:4px}
+.qset .seg.sm button svg{width:13px;height:13px;margin:0}
+.qset .seg.alc button[data-v="yes"][aria-pressed="true"]{color:var(--g3)}
+.qhint{font-size:12px;color:var(--muted);font-style:italic}
+.pop-q{padding:8px 12px 2px}
+.pop-q .qlbl{min-width:0}
+.ttag.lang.en{background:color-mix(in srgb,var(--g5) 18%,transparent);color:var(--g5)}
+/* expanded map */
+.floor-stage{position:relative}
+.expand-btn{position:absolute;top:10px;right:10px;z-index:4;display:inline-flex;align-items:center;gap:6px;appearance:none;border:1px solid var(--line-strong);background:var(--surface);color:var(--fg);border-radius:99px;padding:6px 12px 6px 10px;font-weight:700;font-size:13px;cursor:pointer;box-shadow:var(--shadow)}
+.expand-btn:hover{border-color:var(--accent);color:var(--accent)}
+.expand-btn svg{width:15px;height:15px}
+.xbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.xbar-t{display:flex;align-items:baseline;gap:6px;font-size:14px;color:var(--muted)}
+.xbar-t strong{font-family:var(--font-display);font-size:22px;font-weight:500;color:var(--fg)}
+.xhint{font-size:13px;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:99px;padding:4px 12px}
+.ft.swap-target .ft-top{stroke:var(--g5);stroke-width:7;stroke-dasharray:none}
+.ft.swap-target .ft-edge{stroke:var(--g5);stroke-width:52}
+.ft.swap-bad .ft-top{stroke:var(--bad);stroke-width:6;stroke-dasharray:none}
+.ft.swap-bad .ft-edge{stroke:var(--bad);stroke-width:50}
+.ft.moving{pointer-events:none}
+body.map-expanded{overflow:hidden}
+body.map-expanded #floorWrap{position:fixed;inset:0;z-index:40;background:var(--bg);padding:max(12px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(12px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:10px}
+body.map-expanded .floor-stage{flex:1;min-height:0;display:flex}
+body.map-expanded .floor-scroll{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:auto}
+body.map-expanded #floor{height:100%;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center}
+body.map-expanded .floor-svg{width:auto;height:auto;max-width:100%;max-height:100%;min-width:0;flex:1 1 auto;min-height:0}
+body.map-expanded .expand-btn,body.map-expanded .floor-foot,body.map-expanded .swipe-hint{display:none}
+body.map-expanded #tray:not([hidden]){display:flex;position:fixed;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:max(12px,env(safe-area-inset-bottom,0px));top:auto;z-index:42;margin:0;box-shadow:var(--shadow)}
+body.map-expanded.has-tray #floorWrap{padding-bottom:120px}
+body.map-expanded .toast{z-index:60}
+@media (max-width:700px){body.map-expanded .floor-scroll{justify-content:flex-start;align-items:stretch}body.map-expanded #floor{width:auto;height:100%;align-items:flex-start}body.map-expanded .floor-svg{height:100%;width:auto;aspect-ratio:1600/985;min-width:0;max-width:none;max-height:none;flex:none}
+  body.map-expanded .xbar{gap:6px}body.map-expanded .xbar .btn.sm{padding:5px 9px;font-size:12px}}
+@media (max-width:520px){.expand-btn span{display:none}.expand-btn{padding:7px}}
+
+/* guest editing */
+.gtop{display:flex;align-items:center;gap:2px;min-width:0}
+.gtop .gname{min-width:0}
+.gpen{opacity:.55;padding:3px;flex:none}
+.grow:hover .gpen,.gpen:focus-visible{opacity:1}
+.gpen svg{width:14px;height:14px}
+.li-acts{display:flex;align-items:center;gap:0;flex:none}
+.li-acts .x svg{width:13px;height:13px}
+.tlist li{grid-template-columns:22px minmax(0,1fr) auto}
+#guestDlg{width:min(520px,calc(100vw - 32px))}
+.gd-head{display:flex;flex-direction:column;gap:2px}
+.gd-head h3{overflow-wrap:anywhere}
+.gd-where{font-size:13px;color:var(--muted);font-weight:600}
+.gd-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.gd-grid label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);font-weight:600;min-width:0}
+.gd-grid .full{grid-column:1/-1}
+.gd-seats{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 12px;background:var(--bg);border:1px solid var(--line);border-radius:var(--r-sm)}
+.gd-lbl{font-size:12px;color:var(--muted);font-weight:600}
+.stepper{display:inline-flex;align-items:center;border:1px solid var(--line-strong);border-radius:99px;background:var(--surface);overflow:hidden}
+.stepper button{appearance:none;border:0;background:none;width:36px;height:34px;font-size:18px;cursor:pointer;color:var(--fg)}
+.stepper button:hover:not(:disabled){background:var(--accent-soft)}
+.stepper button:disabled{opacity:.3;cursor:default}
+.stepper output{min-width:30px;text-align:center;font-weight:700;font-size:16px}
+#gdPlusOne{margin-left:auto}
+.gd-err{margin:0;padding:9px 12px;border-radius:var(--r-sm);background:var(--bad-soft);color:var(--bad);font-size:13.5px;font-weight:600}
+.gd-confirm{padding:12px 14px;border-radius:var(--r-sm);border:1px solid var(--bad);background:var(--bad-soft);display:flex;flex-direction:column;gap:10px}
+.gd-confirm p{margin:0;color:var(--fg)!important}
+.gd-acts .gd-del{margin-right:auto}
+@media (max-width:460px){.gd-grid{grid-template-columns:1fr}.gd-grid>*{grid-column:1/-1}#gdPlusOne{margin-left:0}}
+.toast{display:flex;align-items:center;gap:12px}
+.toast-undo{appearance:none;border:0;background:none;color:var(--accent-soft);font-weight:800;cursor:pointer;padding:2px 4px;text-decoration:underline;text-underline-offset:3px;font-size:14px}
+/* table swap + layout */
+[data-tdrag]{-webkit-touch-callout:none}
+.thead[data-tdrag]{cursor:grab}
+.ft[data-tdrag]{cursor:grab}
+.ghost.table{background:var(--accent);color:var(--accent-ink)}
+.ghost.table b{background:var(--accent-ink);color:var(--accent)}
+.move-sel{border-style:solid;color:var(--muted)}
+.btn.sm{padding:6px 11px;font-size:13px}
+.btn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.layout-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;margin-bottom:12px;border-radius:var(--r);background:var(--accent-soft);border:1px dashed var(--accent);font-size:13.5px}
+.layout-mode .ft{cursor:move;touch-action:none}
+.layout-mode .floor-scroll{outline:2px dashed var(--accent);outline-offset:-2px}
+.layout-mode .ft .ft-top{stroke-dasharray:6 4}
+.ft.moving{opacity:.85}
+.ft.moving .ft-top{stroke:var(--accent);stroke-width:4}
+.ft.moving .ft-edge{stroke:var(--accent)}
+.layout-mode .offchip{cursor:grab;border-style:dashed}
+
+/* dialogs */
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--fg);padding:0;width:min(640px,calc(100vw - 32px));max-height:calc(100vh - 48px);box-shadow:0 30px 80px -30px rgba(0,0,0,.5)}
+dialog::backdrop{background:rgba(25,15,8,.45)}
+.dlg{display:flex;flex-direction:column;gap:14px;padding:20px;max-height:calc(100vh - 50px);overflow:auto}
+.dlg h3{font-family:var(--font-display);font-weight:500;font-size:24px;margin:0}
+.dlg p{margin:0;color:var(--muted)}
+.dlg .acts{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+textarea.field{min-height:150px;resize:vertical;font-size:14px;line-height:1.5}
+.mapgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.mapgrid label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--muted)}
+.preview{overflow:auto;border:1px solid var(--line);border-radius:var(--r-sm);max-height:220px}
+.preview table{border-collapse:collapse;font-size:13px;width:100%}
+.preview th,.preview td{padding:6px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+.preview th{background:var(--sunk);font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);position:sticky;top:0}
+.preview td.on{background:var(--accent-soft);font-weight:600}
+.preview tr.dup td{color:var(--muted);text-decoration:line-through}
+.dropzone{border:1.5px dashed var(--line-strong);border-radius:var(--r);padding:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+.dropzone.drag{border-color:var(--accent);background:var(--accent-soft)}
+.summary-list{margin:0;padding-left:18px;color:var(--fg);font-size:14px;display:flex;flex-direction:column;gap:3px;max-height:220px;overflow:auto}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:99px;font-size:14px;font-weight:600;box-shadow:var(--shadow);z-index:50;max-width:calc(100vw - 32px)}
+
+body.ro .write-only{display:none!important}
+
+@media (max-width:860px){
+  .switch{display:flex}
+  .board{grid-template-columns:minmax(0,1fr)}
+  .guests-panel{position:static;max-height:none}
+  .glist{max-height:none;overflow:visible}
+  .board[data-view="guests"] .tables-pane{display:none}
+  .board[data-view="tables"] .guests-panel{display:none}
+}
+@media (max-width:420px){
+  .addg{grid-template-columns:1fr 1fr}
+  .addg .btn{grid-column:1/-1;justify-content:center}
+  .grow{grid-template-columns:minmax(0,1fr)}
+  .stats{gap:8px 18px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="head">
+    <div>
+      <div class="eyebrow">Ester &amp; Prince · Sat 24 Oct 2026 · Quinta das Buganvílias</div>
+      <h1 id="h1t" data-nt>Seating <em>chart</em></h1>
+    </div>
+    <div class="head-r">
+      <div class="row" style="gap:8px;flex-wrap:wrap;justify-content:flex-end">
+      <div class="seg lang-seg" id="langSeg" role="group" aria-label="Language"><button data-ui-lang="pt" aria-pressed="false">PT</button><button data-ui-lang="en" aria-pressed="false">EN</button></div>
+      <div class="seg" id="themeSeg" role="group" aria-label="Appearance">
+        <button data-theme-set="light" aria-pressed="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1 1M11.6 11.6l1 1M3.4 12.6l1-1M11.6 4.4l1-1"/></svg>Light</button>
+        <button data-theme-set="dark" aria-pressed="false"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 9.5A5.5 5.5 0 016.5 3a5.5 5.5 0 106.5 6.5z"/></svg>Dark</button>
+      </div></div>
+      <div class="save local" id="save" role="status" aria-live="polite"><span class="dot"></span><span id="saveText">Opening your plan…</span></div>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" id="tabs" aria-label="Event" hidden></nav>
+
+  <div id="banner" hidden></div>
+
+  <section class="stats" id="stats" aria-label="Seating summary"></section>
+  <section class="rsvp" id="rsvp" aria-label="RSVP"></section>
+
+  <div class="toolbar write-only" id="toolbar">
+    <button class="btn primary" data-act="import"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 2v8M4.5 6.5L8 10l3.5-3.5M2.5 13.5h11"/></svg>Import guest list</button>
+    <button class="btn" data-act="add-table"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="5.5"/><path d="M8 5.5v5M5.5 8h5"/></svg>Add table</button>
+    <button class="btn" data-act="autoseat"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 13l4-4M9 3l1 2 2 1-2 1-1 2-1-2-2-1 2-1z"/></svg>Auto-seat by group</button>
+    <button class="btn" data-act="copy-list"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="5" width="8.5" height="8.5" rx="1.5"/><path d="M11 5V3.5A1.5 1.5 0 009.5 2h-6A1.5 1.5 0 002 3.5v6A1.5 1.5 0 003.5 11H5"/></svg>Copy list for venue</button>
+    <button class="btn" data-act="export-site" id="exportSite" hidden title="Download the guest seat-finder page with the latest seating, to upload to your website"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><path d="M9.5 9.5h1.5v1.5M13 9.5v4h-3.5"/></svg>Export guest QR page</button>
+    <button class="btn primary" id="publishBtn" hidden onclick="window.__pub&&window.__pub()"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 11V2.5M4.5 6L8 2.5 11.5 6M2.5 10.5v3h11v-3"/></svg>Update guest page</button>
+    <button class="btn" data-act="export" id="exportBtn" hidden><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 2.5h7l3 3v8H3z"/><path d="M5.5 9h5M5.5 11.5h5"/></svg>Download CSV</button>
+    <button class="btn ghost" data-act="clear-seats" style="margin-left:auto">Clear all seats</button>
+  </div>
+
+  <div class="switch" role="group" aria-label="View">
+    <button data-act="view" data-v="guests" aria-pressed="true">Guests</button>
+    <button data-act="view" data-v="tables" aria-pressed="false">Tables</button>
+  </div>
+
+  <main class="board" id="board" data-view="guests">
+    <section class="panel guests-panel" aria-label="Guests" data-drop="">
+      <div class="panel-h">
+        <h2>Guests <small id="gCount" class="num"></small></h2>
+        <form class="addg write-only" id="addGuest" autocomplete="off">
+          <input class="field" id="newName" placeholder="Guest name" aria-label="Guest name" required>
+          <input class="field" id="newGroup" placeholder="Group" aria-label="Group" list="groupList">
+          <button class="btn primary" type="submit">Add</button>
+        </form>
+        <input class="field" id="search" type="search" placeholder="Search guests" aria-label="Search guests">
+        <div class="chips" id="filters"></div>
+      </div>
+      <div class="glist" id="glist"></div>
+    </section>
+
+    <section class="tables-pane" aria-label="Tables">
+      <div class="tables-h"><h2>Tables <small id="tCount" class="num" style="font-family:var(--font-body);font-size:13px;color:var(--muted);font-weight:500"></small></h2>
+        <div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn sm write-only" id="layoutBtn" data-act="layout" aria-pressed="false" hidden><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 1.5v13M1.5 8h13M8 1.5L6 3.5M8 1.5l2 2M8 14.5l-2-2M8 14.5l2-2M1.5 8l2-2M1.5 8l2 2M14.5 8l-2-2M14.5 8l-2 2"/></svg><span>Edit layout</span></button>
+        <div class="seg" id="tview" role="group" aria-label="Table view" hidden><button data-act="tview" data-v="plan" aria-pressed="true">Floor plan</button><button data-act="tview" data-v="cards" aria-pressed="false">All tables</button></div></div></div>
+      <div class="layout-bar" id="layoutBar" hidden><span><strong>Editing the layout.</strong> Drag tables and room items to move them, or drop a table on another table of the same shape to swap places. Guests stay with their table.</span><span class="row" style="gap:6px"><button class="btn sm" data-act="layout-reset">Reset to venue layout</button><button class="btn sm primary" data-act="layout">Done</button></span></div>
+      <div id="tray" class="tray write-only" data-drop="" hidden></div>
+      <div id="floorWrap" class="floor-layout" hidden>
+        <div class="xbar" id="xbar">
+          <div class="xbar-t"><strong>Floor plan</strong><span id="xStats" class="num"></span></div>
+          <span class="xhint" id="layoutHint" hidden></span>
+          <div class="row" style="gap:6px;flex-wrap:wrap">
+            <button class="btn sm write-only" data-act="layout" id="xLayout">Edit layout</button>
+            <button class="btn sm write-only" data-act="layout-reset" id="xReset" hidden>Reset to venue layout</button>
+            <button class="btn sm primary" data-act="expand" aria-label="Close full screen"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2v4H2M10 2v4h4M6 14v-4H2M10 14v-4h4"/></svg>Close</button>
+          </div>
+        </div>
+        <div class="toolbox write-only" id="toolbox" hidden>
+          <div class="tb-row"><span class="tb-lbl">Tables</span>
+            <button class="tb-item" data-new="t:long"><svg viewBox="0 0 30 22"><rect class="f" x="9" y="3" width="12" height="16" rx="2"/></svg><span>Rectangle</span></button>
+            <button class="tb-item" data-new="t:round"><svg viewBox="0 0 30 22"><circle class="f" cx="15" cy="11" r="8"/></svg><span>Round</span></button>
+            <button class="tb-item" data-new="t:serpentine"><svg viewBox="0 0 30 22"><path d="M3 15c5-10 9 2 12-4s8-7 12 2" stroke-width="4"/></svg><span>Serpentine</span></button>
+            <button class="tb-item" data-new="t:halfmoon"><svg viewBox="0 0 30 22"><path class="f" d="M5 16a10 10 0 0120 0z"/></svg><span>Half moon</span></button>
+          </div>
+          <div class="tb-row"><span class="tb-lbl">Room</span>
+            <button class="tb-item" data-new="f:dj"><svg viewBox="0 0 30 22"><rect class="f" x="3" y="6" width="24" height="10" rx="2"/><circle cx="9" cy="11" r="3"/><circle cx="21" cy="11" r="3"/></svg><span>DJ table</span></button>
+            <button class="tb-item" data-new="f:buffet_long"><svg viewBox="0 0 30 22"><rect class="f" x="2" y="8" width="26" height="6" rx="1.5"/></svg><span>Buffet (long)</span></button>
+            <button class="tb-item" data-new="f:buffet_small"><svg viewBox="0 0 30 22"><rect class="f" x="9" y="8" width="12" height="6" rx="1.5"/></svg><span>Buffet (small)</span></button>
+            <button class="tb-item" data-new="f:tea"><svg viewBox="0 0 30 22"><rect class="f" x="2" y="8" width="26" height="6" rx="1.5"/><path d="M12 6h6"/></svg><span>Tea table</span></button>
+            <button class="tb-item" data-new="f:bar"><svg viewBox="0 0 30 22"><rect class="f" x="10" y="3" width="10" height="16" rx="1.5"/></svg><span>Bar</span></button>
+            <button class="tb-item" data-new="f:dance:square"><svg viewBox="0 0 30 22"><rect class="f" x="8" y="4" width="14" height="14" rx="1"/></svg><span>Dance floor (square)</span></button>
+            <button class="tb-item" data-new="f:dance:rect"><svg viewBox="0 0 30 22"><rect class="f" x="4" y="6" width="22" height="10" rx="1"/></svg><span>Dance floor (rectangle)</span></button>
+            <button class="tb-item" data-new="f:dance:oval"><svg viewBox="0 0 30 22"><ellipse class="f" cx="15" cy="11" rx="11" ry="7"/></svg><span>Dance floor (oval)</span></button>
+          </div>
+          <span class="tb-hint">Drag an item onto the plan, or tap it to add it in the middle. Tap anything on the plan to edit it.</span>
+        </div>
+        <div class="inspector write-only" id="inspector" hidden></div>
+        <div class="floor-stage">
+          <div class="floor-scroll"><div id="floor"></div></div>
+          <button class="expand-btn" data-act="expand" id="expandBtn" aria-label="Expand floor plan to full screen" title="Expand"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 6V2h4M14 6V2h-4M2 10v4h4M14 10v4h-4"/></svg><span>Expand</span></button>
+        </div>
+        <p class="swipe-hint">Swipe the plan sideways to see the right side of the room.</p>
+        <div class="floor-foot">
+          <div id="detail"></div>
+          <ul class="legend" aria-label="Legend">
+            <li><i style="background:var(--bg)"></i>Empty</li>
+            <li><i style="background:var(--accent-soft)"></i>Filling</li>
+            <li><i style="background:color-mix(in srgb,var(--ok) 28%,var(--surface))"></i>Full</li>
+            <li><i style="background:var(--bad-soft);border-color:var(--bad)"></i>Over capacity</li>
+            <li><i class="dot" style="background:var(--accent);border-color:var(--accent)"></i>Taken seat</li>
+            <li><span class="lg-lang">EN</span>English table (others Português)</li>
+            <li><span class="lg-alc yes"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4.5 2h7l-.6 4.2A3 3 0 018 8.8a3 3 0 01-2.9-2.6zM8 8.8V14M5.5 14h5"/></svg></span>Alcohol served</li>
+            <li><span class="lg-alc no"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4.5 2h7l-.6 4.2A3 3 0 018 8.8a3 3 0 01-2.9-2.6zM8 8.8V14M5.5 14h5M2 2l12 12"/></svg></span>No alcohol</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tgrid" id="tgrid"></div>
+    </section>
+  </main>
+</div>
+
+<datalist id="groupList"></datalist>
+
+
+<dialog id="confirmDlg"><form method="dialog" class="dlg">
+  <h3 id="cTitle"></h3><div id="cBody"></div>
+  <div class="acts"><button class="btn" value="no">Cancel</button><button class="btn primary" value="yes" id="cOk">OK</button></div>
+</form></dialog>
+
+<dialog id="importDlg"><div class="dlg">
+  <h3>Import guest list</h3>
+  <p>Copy the name column (and group, if you have one) from your spreadsheet and paste it here. Or choose the file itself.</p>
+  <div class="dropzone" id="drop">
+    <span id="fileLabel">Drop a .xlsx or .csv file here</span>
+    <label class="btn" for="fileIn">Choose file</label>
+    <input type="file" id="fileIn" accept=".xlsx,.xls,.csv,.txt" hidden>
+  </div>
+  <textarea class="field" id="pasteIn" placeholder="Maria Sitoe&#9;Bride's family&#10;João Cossa&#9;Groom's friends&#10;…"></textarea>
+  <div id="mapArea" hidden>
+    <div class="mapgrid">
+      <label id="sheetWrap" hidden>Sheet<select class="field" id="mSheet"></select></label>
+      <label>Name column<select class="field" id="mName"></select></label>
+      <label>Group column<select class="field" id="mGroup"></select></label>
+      <label>Side column<select class="field" id="mSide"></select></label>
+      <label>Seats column<select class="field" id="mSeats"></select></label>
+      <label>Age column<select class="field" id="mAge"></select></label>
+      <label>Note column<select class="field" id="mNote"></select></label>
+      <label style="flex-direction:row;align-items:center;gap:8px;align-self:end;padding-bottom:8px"><input type="checkbox" id="mHeader"> First row is headings</label>
+    </div>
+    <p id="mSummary" style="margin-top:10px"></p>
+    <div class="preview" id="mPreview"></div>
+  </div>
+  <div class="acts"><button class="btn" data-act="import-cancel">Cancel</button><button class="btn primary" id="importGo" data-act="import-go" disabled>Add guests</button></div>
+</div></dialog>
+
+<dialog id="guestDlg"><form class="dlg" id="guestForm" autocomplete="off" novalidate>
+  <div class="gd-head"><h3 id="gdTitle">Edit guest</h3><span class="gd-where" id="gdWhere"></span></div>
+  <div class="gd-grid">
+    <label class="full">Name on invitation<input class="field" id="gdName"></label>
+    <div class="full gd-seats">
+      <span class="gd-lbl">Seats</span>
+      <div class="stepper" role="group" aria-label="Seats on this invitation"><button type="button" data-gd="minus" aria-label="One seat fewer">−</button><output id="gdSeats" class="num" aria-live="polite">1</output><button type="button" data-gd="plus" aria-label="One seat more">+</button></div>
+      <button type="button" class="btn" data-gd="plusone" id="gdPlusOne"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="6" cy="5.5" r="2.5"/><path d="M1.5 13.5c.6-2.4 2.3-3.5 4.5-3.5s3.9 1.1 4.5 3.5M12.5 5v5M10 7.5h5"/></svg>Add plus one</button>
+    </div>
+    <div class="gd-status"><span class="gd-lbl">RSVP</span><span class="seg" id="gdSt" role="group" aria-label="RSVP"><button type="button" data-gd="st" data-v="confirmed">Confirmed</button><button type="button" data-gd="st" data-v="pending">Pending</button><button type="button" data-gd="st" data-v="declined">Declined</button></span><small id="gdStHint"></small></div>
+    <label>Category<input class="field" id="gdGroup" list="groupList"></label>
+    <label>Table<select class="field" id="gdTable"></select></label>
+    <label>Age group<input class="field" id="gdAge" placeholder="30, 40, 60"></label>
+    <label>Note<input class="field" id="gdNote" placeholder="Dietary, child seat, access"></label>
+  </div>
+  <p class="gd-err" id="gdErr" role="alert" hidden></p>
+  <div class="gd-confirm" id="gdConfirm" hidden>
+    <p id="gdCText"></p>
+    <div class="acts"><button type="button" class="btn" data-gd="keep">Keep guest</button><button type="button" class="btn danger" data-gd="remove-yes">Remove for good</button></div>
+  </div>
+  <div class="acts gd-acts" id="gdActs"><button type="button" class="btn danger gd-del" data-gd="remove"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 4.5h11M6 4.5V3h4v1.5M4 4.5l.7 9h6.6l.7-9"/></svg>Remove guest</button><button type="button" class="btn" data-gd="cancel">Cancel</button><button class="btn primary" type="submit">Save</button></div>
+</form></dialog>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+"use strict";
+/* appearance: light by default, remembered on this device */
+function applyTheme(m){document.documentElement.setAttribute("data-theme",m);document.querySelectorAll("[data-theme-set]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.themeSet===m)))}
+let THEME="light";try{const t=localStorage.getItem("seating-theme");if(t==="dark"||t==="light")THEME=t}catch(e){}
+applyTheme(THEME);
+const UI={lang:"en"};try{const l=localStorage.getItem("seating-lang");UI.lang=l==="pt"||l==="en"?l:(/^pt/i.test(navigator.language||"")?"pt":"en")}catch(e){}
+/*PT-DICT*/const PT={"A to Z": "A a Z", "Add": "Adicionar", "Add guests": "Adicionar convidados", "Add plus one": "Adicionar acompanhante", "Add table": "Adicionar mesa", "Age column": "Coluna da idade", "Age group": "Faixa etária", "Alcohol": "Álcool", "Alcohol served": "Com álcool", "No alcohol": "Sem álcool", "All": "Todos", "All groups": "Categorias", "All categories": "Todas as categorias", "All tables": "Todas as mesas", "Appearance": "Aparência", "Auto-seat by group": "Sentar automaticamente por categoria", "Bar": "Bar", "Buffet": "Buffet", "Buffet (long)": "Buffet (comprido)", "Buffet (small)": "Buffet (pequeno)", "By category": "Por categoria", "Cancel": "Cancelar", "Category": "Categoria", "Choose file": "Escolher ficheiro", "Clear all seats": "Limpar todos os lugares", "Close": "Fechar", "Close full screen": "Sair do ecrã inteiro", "Collapse all": "Fechar todas", "Confirmed": "Confirmado", "Pending": "Pendente", "Declined": "Não vem", "Copy list for venue": "Copiar lista para o local", "Copy the name column (and group, if you have one) from your spreadsheet and paste it here. Or choose the file itself.": "Copie a coluna dos nomes (e a da categoria, se tiver) da sua folha de cálculo e cole aqui. Ou escolha o próprio ficheiro.", "DJ": "DJ", "DJ table": "Mesa do DJ", "Dance floor": "Pista de dança", "Dance floor (oval)": "Pista de dança (oval)", "Dance floor (rectangle)": "Pista de dança (retangular)", "Dance floor (square)": "Pista de dança (quadrada)", "Dark": "Escuro", "Light": "Claro", "Delete": "Apagar", "Delete table": "Apagar mesa", "Dietary, child seat, access": "Dieta, cadeira de criança, acessibilidade", "Done": "Concluído", "Done editing": "Terminar edição", "Edit layout": "Editar disposição", "Download CSV": "Descarregar CSV", "Download the guest seat-finder page with the latest seating, to upload to your website": "Descarregar a página onde cada convidado encontra o seu lugar, com a distribuição mais recente, para carregar no site", "Drag a guest onto a table": "Arraste um convidado para uma mesa", "to seat them.": "para o sentar.", "Drag a table onto another table": "Arraste uma mesa para outra", "to swap everyone between them. Tap a table to see who is there.": "para trocar todos os convidados entre elas. Toque numa mesa para ver quem lá está.", "Drag a table to move it on the plan. Press Done when finished.": "Arraste uma mesa para a mover na planta. Prima Concluído no fim.", "Drag an item onto the plan, or tap it to add it in the middle. Tap anything on the plan to edit it.": "Arraste um elemento para a planta, ou toque nele para o colocar ao centro. Toque em qualquer coisa na planta para a editar.", "Drag items from the toolbox onto the plan, or drag anything on the plan to move it.": "Arraste elementos da caixa para a planta, ou arraste qualquer coisa na planta para a mover.", "Drag onto another table to swap": "Arraste para outra mesa para trocar", "Drag tables and room items to move them, or drop a table on another table of the same shape to swap places. Guests stay with their table.": "Arraste mesas e elementos da sala para os mover, ou largue uma mesa sobre outra da mesma forma para trocarem de posição. Os convidados ficam com a sua mesa.", "Drop a .xlsx or .csv file here": "Largue aqui um ficheiro .xlsx ou .csv", "Duplicate": "Duplicar", "Edit": "Editar", "Editing the layout.": "A editar a disposição.", "Rearranging tables.": "A reorganizar as mesas.", "Empty": "Vazia", "English": "Inglês", "Português": "Português", "English table (others Português)": "Mesa em inglês (as outras em português)", "Entrance": "Entrada", "Ester & Prince Seating": "Mapa de lugares · Ester & Prince", "Ester & Prince · Sat 24 Oct 2026 · Quinta das Buganvílias": "Ester & Prince · Sáb, 24 de outubro de 2026 · Quinta das Buganvílias", "Event": "Evento", "Expand": "Ampliar", "Expand all": "Abrir todas", "Expand floor plan to full screen": "Ver a planta em ecrã inteiro", "Export guest QR page": "Exportar página QR dos convidados", "Filling": "A encher", "Filter by group": "Filtrar por categoria", "First row is headings": "A primeira linha tem os títulos", "Floor plan": "Planta da sala", "Floor plan, Quinta das Buganvílias": "Planta da sala, Quinta das Buganvílias", "Full": "Cheia", "Group": "Categoria", "Group column": "Coluna da categoria", "Guest name": "Nome", "Guests": "Convidados", "Guests seated": "Convidados sentados", "Half moon": "Meia-lua", "Head table": "Mesa de honra", "Import guest list": "Importar lista de convidados", "Keep guest": "Manter convidado", "Label": "Etiqueta", "Language": "Língua", "Legend": "Legenda", "Length": "Comprimento", "List order": "Ordem da lista", "Name": "Nome", "Name column": "Coluna do nome", "Name on invitation": "Nome no convite", "None": "Nenhum", "Not decided": "Por decidir", "Not seated": "Sem lugar", "Note": "Nota", "Note column": "Coluna da nota", "OK": "OK", "One seat fewer": "Menos um lugar", "One seat more": "Mais um lugar", "Open seats": "Lugares livres", "Oval": "Oval", "Over capacity": "Acima da capacidade", "People": "Pessoas", "Possible duplicate: listed twice in the spreadsheet": "Possível duplicado: aparece duas vezes na folha", "RSVP": "RSVP", "Rectangle": "Retangular", "Remove": "Remover", "Remove for good": "Remover de vez", "Remove guest": "Remover convidado", "Reset to venue layout": "Repor a disposição do local", "Room": "Sala", "Round": "Redonda", "Save": "Guardar", "Saved on this device only": "Guardado só neste dispositivo", "Search guests": "Procurar convidados", "Seated": "Sentados", "Seating summary": "Resumo dos lugares", "Seats": "Lugares", "Seats column": "Coluna dos lugares", "Seats on this invitation": "Lugares neste convite", "Serpentine": "Serpentina", "Served": "Servido", "Shape": "Forma", "Sheet": "Folha", "Show everyone": "Mostrar todos", "Side column": "Coluna do lado", "Size": "Tamanho", "Square": "Quadrada", "Swipe the plan sideways to see the right side of the room.": "Deslize a planta para o lado para ver o lado direito da sala.", "Table": "Mesa", "Table is full": "Mesa cheia", "Table view": "Vista das mesas", "Tables": "Mesas", "Taken seat": "Lugar ocupado", "Tap a box to list those guests. Change a status from the guest's edit window.": "Toque numa caixa para ver esses convidados. Mude o estado na janela de edição do convidado.", "Tea table": "Mesa de chá", "This view saves to this browser only. Open the plan from your Claude chat to keep one shared copy across your devices.": "Esta vista só guarda neste navegador. Abra a planta a partir da sua conversa com o Claude para manter uma única cópia partilhada em todos os seus dispositivos.", "Unseat": "Tirar do lugar", "View": "Ver", "Width": "Largura", "Rotate": "Rodar", "↻ Rotate": "↻ Rodar", "⇄ Swap guests with another table…": "⇄ Trocar convidados com outra mesa…", "⇆ Swap this table's place on the map with…": "⇆ Trocar a posição desta mesa na planta com…", "A change didn't save. Check your connection, then try that step again.": "Uma alteração não foi guardada. Verifique a ligação e repita esse passo.", "A save prompt is already open": "Já há uma janela de gravação aberta", "Access to this plan changed. Reload to continue.": "O acesso a esta planta mudou. Recarregue para continuar.", "CSV saved": "CSV guardado", "Couldn't load the page template. Reload the planner and try again.": "Não foi possível carregar o modelo da página. Recarregue o planeador e tente de novo.", "Different shapes can't trade places. Drop it on an empty spot to move it.": "Mesas de formas diferentes não trocam de posição. Largue-a num espaço vazio para a mover.", "Downloads aren't available here. Use Copy list instead.": "Não é possível descarregar aqui. Use antes Copiar lista para o local.", "Downloads aren't available here.": "Não é possível descarregar aqui.", "Everyone is already seated": "Todos já têm lugar", "No one is seated yet": "Ainda ninguém tem lugar", "No open seats. Add a table or raise a seat count first.": "Não há lugares livres. Adicione uma mesa ou aumente os lugares primeiro.", "Plus one added. Save to keep it.": "Acompanhante adicionado. Guarde para manter.", "Seating list copied. Paste it into WhatsApp or an email.": "Lista de lugares copiada. Cole no WhatsApp ou num email.", "The page template is damaged. Ask Claude to republish it.": "O modelo da página está danificado. Peça ao Claude para o publicar de novo.", "The plan is full. Delete some guests or tables to add more.": "A planta está cheia. Apague convidados ou mesas para adicionar mais.", "Undone": "Desfeito", "Undo": "Desfazer", "You can view this plan but not change it.": "Pode ver esta planta, mas não alterá-la.", "Exported lugares.html. Upload it to your website to replace the old one.": "lugares.html exportado. Carregue-o no site para substituir o antigo.", "This table has no one seated.": "Esta mesa não tem ninguém sentado.", "Clear all seats?": "Limpar todos os lugares?", "Clear seats": "Limpar lugares", "Copy guests": "Copiar convidados", "Copy the seating list": "Copiar a lista de lugares", "Select all of this text and copy it.": "Selecione todo este texto e copie-o.", "No group": "Sem categoria", "No category": "Sem categoria", "Add a name for this invitation.": "Escreva um nome para este convite.", "Add guests to start seating": "Adicione convidados para começar", "All changes saved": "Todas as alterações guardadas", "Both tables are empty": "As duas mesas estão vazias", "Couldn't read that file. Try saving it as .csv, or paste the names instead.": "Não foi possível ler o ficheiro. Guarde-o como .csv ou cole os nomes.", "Drag onto the plan to place:": "Arraste para a planta para colocar:", "Drop here": "Largue aqui", "Drop it on the plan": "Largue-a na planta", "Drop on another table": "Largue noutra mesa", "Drop to unseat": "Largue para tirar do lugar", "Everything is already in the venue layout": "Já está tudo na disposição do local", "Layout reset": "Disposição reposta", "Not on the floor plan:": "Fora da planta:", "Opening your plan…": "A abrir a sua planta…", "Reset layout": "Repor disposição", "Reset to venue layout?": "Repor a disposição do local?", "Saving frees their seat.": "Ao guardar, o lugar fica livre.", "Shown with a ? on their table until confirmed.": "Aparece com um ? na mesa até confirmar.", "View only": "Só leitura", "Wedding reception": "Receção do casamento", "empty, move here": "vazia, mover para aqui", "Everyone is seated": "Todos têm lugar", "No guests yet": "Ainda sem convidados", "Paste the names from your guest list spreadsheet, or add guests one at a time above.": "Cole os nomes da folha da lista de convidados, ou adicione-os um a um acima.", "Loading guests…": "A carregar convidados…", "No guests match. Clear the search or pick another filter.": "Nenhum convidado corresponde. Limpe a pesquisa ou escolha outro filtro.", "No tables yet": "Ainda sem mesas", "Add each table with its number of seats. You can rename them later, for example \"Mesa 01\" or \"Família\".": "Adicione cada mesa com o número de lugares. Pode mudar os nomes depois, por exemplo \"Mesa 01\" ou \"Família\".", "not seated · hold a name, then drag it onto a table": "sem lugar · mantenha um nome premido e arraste-o para uma mesa", "Table name": "Nome da mesa", "Side": "Lado", "Not set": "Não definido", "Bride's side": "Lado da noiva", "Groom's side": "Lado do noivo", "Both": "Ambos", "· no group column chosen": "· sem coluna de categoria", "No one here yet. Drag guests onto this table.": "Ainda ninguém aqui. Arraste convidados para esta mesa.", "Order": "Ordem", "Invitation": "Convite", "seat freed": "lugar libertado", "Status": "Estado", "Toolbox": "Elementos", "Tables:": "Mesas:", "Room items:": "Sala:", "Room items": "Elementos da sala", "Rectangle table": "Mesa retangular", "Round table": "Mesa redonda", "Serpentine table": "Mesa serpentina", "Half moon table": "Mesa meia-lua", "Bar counter": "Bar", "seat": "lugar", "Seating": "Lugares", "Language toggle": "Língua", "Theme": "Tema", "Head": "Honra", "Close menu": "Fechar menu", "Remove <b>{name}</b> from the guest list completely? Their {n} seats will be freed. This can't be undone.": "Remover <b>{name}</b> da lista de convidados de vez? Os {n} lugares ficam livres. Não é possível desfazer.", "Remove <b>{name}</b> from the guest list completely? Their seat will be freed. This can't be undone.": "Remover <b>{name}</b> da lista de convidados de vez? O lugar fica livre. Não é possível desfazer.", "Tables from the Quinta das Buganvílias plan go back to their original spot and shape, and the dance floor, buffets, tea table, bar and DJ return to where the venue has them. Room items you added are removed. Tables you added stay where they are, and guests stay seated.": "As mesas da planta da Quinta das Buganvílias voltam ao sítio e à forma originais, e a pista, os buffets, a mesa de chá, o bar e o DJ voltam para onde o local os tem. Os elementos da sala que adicionou são retirados. As mesas que adicionou ficam onde estão e os convidados mantêm os lugares.", "not seated": "sem lugar", "Update the guest page?": "Atualizar a página dos convidados?", "Guests who scan the QR code will see this seating straight away.": "Quem ler o código QR passa a ver estes lugares de imediato.", "{n} person without a seat won't be on it.": "{n} pessoa sem lugar não vai aparecer.", "{n} people without a seat won't be on it.": "{n} pessoas sem lugar não vão aparecer.", "Update guest page": "Atualizar página dos convidados", "Guest page updated": "Página dos convidados atualizada", "Couldn't update the guest page. Check your connection and try again.": "Não foi possível atualizar a página dos convidados. Verifique a ligação e tente de novo.", "Send this seating to the guest QR page": "Enviar estes lugares para a página QR dos convidados", "Guest page last updated {a}": "Página dos convidados atualizada {a}", "Enter the access code": "Introduza o código de acesso", "That code didn't work. Check it and try again.": "Esse código não funcionou. Confira e tente de novo.", "Open plan": "Abrir planta", "Access code": "Código de acesso", "Setting up the shared plan…": "A preparar a planta partilhada…", "Live: changes sync to everyone with the link": "Ao vivo: as alterações chegam a todos com o link", "Forget this device": "Esquecer este dispositivo", "Guests who scan the QR code will see this seating straight away: {n} invitations at {m} tables.": "Quem ler o código QR passa logo a ver esta distribuição: {n} convites em {m} mesas.", "This plan is empty. Load the plan file you were sent to start from the current seating.": "Este plano está vazio. Carregue o ficheiro do plano que recebeu para começar com a distribuição atual.", "Load plan file": "Carregar ficheiro do plano", "Plan loaded": "Plano carregado", "That file isn't a plan file.": "Esse ficheiro não é um ficheiro do plano.", "This link is missing its access code. Open the planner from the full link you were sent.": "Falta o código de acesso neste link. Abra o planeador a partir do link completo que recebeu."};const PT_PAT=[["{a} · 1 free", "{a} · 1 livre"], ["+ Seat a guest here… (1 free)", "+ Sentar um convidado aqui… (1 livre)"], ["{a} · needs {n}, 1 free", "{a} · precisa de {n}, 1 livre"], ["{a}: 1 free", "{a}: 1 livre"], ["{a} · swap with 1 people", "{a} · trocar com 1 pessoa"], ["{n} invitations", "{n} convites"], ["{n} invitation", "{n} convite"], ["{n} invitations · {m} people", "{n} convites · {m} pessoas"], ["{n} categories", "{n} categorias"], ["{n} category", "{n} categoria"], ["{n} seats", "{n} lugares"], ["{n} seat", "{n} lugar"], ["{n} people", "{n} pessoas"], ["{n} person", "{n} pessoa"], ["{p}% seated · {n} invitations · {m} seats across {k} tables", "{p}% sentados · {n} convites · {m} lugares em {k} mesas"], ["{p}% seated · {n} invitations ·", "{p}% sentados · {n} convites ·"], ["{p}% seated · {n} invitations", "{p}% sentados · {n} convites"], ["{n} more seats needed than your tables hold", "faltam {n} lugares nas suas mesas"], ["{n} more seat needed than your tables hold", "falta {n} lugar nas suas mesas"], ["· {n}/{m} seated", "· {n}/{m} sentados"], ["{n} / {m} seated", "{n} / {m} sentados"], ["{n} over", "{n} a mais"], ["Table for {a}", "Mesa de {a}"], ["Unseat {a} from {b}", "Tirar {a} da {b}"], ["Unseat {a}", "Tirar {a} do lugar"], ["Seat a guest at {a}", "Sentar um convidado na {a}"], ["Edit {a}", "Editar {a}"], ["Alcohol at {a}", "Álcool na {a}"], ["Language at {a}", "Língua da {a}"], ["Move or swap everyone at {a}", "Mover ou trocar todos da {a}"], ["Swap {a}'s place on the map", "Trocar a posição da {a} na planta"], ["{a} · full", "{a} · cheia"], ["{a} · {b} holds {n}, needs {m}", "{a} · a {b} leva {n}, precisa de {m}"], ["{a} holds {n}, needs {m}", "A {a} leva {n}, precisa de {m}"], ["{a} · {n} free", "{a} · {n} livres"], ["{a} · needs {n}, {m} free", "{a} · precisa de {n}, {m} livres"], ["{a} · swap with {n} people", "{a} · trocar com {n} pessoas"], ["{a} · swap with {n} person", "{a} · trocar com {n} pessoa"], ["{a} · empty, move here", "{a} · vazia, mover para aqui"], ["{a} · Both tables are empty", "{a} · as duas mesas estão vazias"], ["Added {a} with {n} seats", "{a} adicionada com {n} lugares"], ["Cleared {n} seats", "{n} lugares libertados"], ["Copied {n} guests", "{n} convidados copiados"], ["Copied {n} tables", "{n} mesas copiadas"], ["Deleted {a}", "Apagado: {a}"], ["Removed {a} from the guest list", "{a} saiu da lista de convidados"], ["Removed {a}", "Removido: {a}"], ["Seated {n} people", "{n} pessoas sentadas"], ["Saved {a}", "Guardado: {a}"], ["{a} seated at {b} · {n}/{m}", "{a} ficou na {b} · {n}/{m}"], ["{n} guests are over the new seat count", "{n} convidados a mais para os novos lugares"], ["{n} guest is over the new seat count", "{n} convidado a mais para os novos lugares"], ["{n} over the new seat count", "{n} a mais para os novos lugares"], ["{a} and {b} are different shapes, so they can't trade places. Drag {c} to an empty spot instead.", "A {a} e a {b} têm formas diferentes, por isso não trocam de posição. Arraste a {c} para um espaço vazio."], ["{a} and {b} swapped places", "A {a} e a {b} trocaram de posição"], ["{a} is a different shape, can't swap", "A {a} tem outra forma, não dá para trocar"], ["Added {n} guests to the {a}", "{n} convidados adicionados ({a})"], ["Added {a}. A guest with this name already exists.", "Adicionado: {a}. Já existe um convidado com este nome."], ["Added {a}", "Adicionado: {a}"], ["{a} has {n} free seats. {b} needs {m}.", "A {a} tem {n} lugares livres. {b} precisa de {m}."], ["{a} has {n} free seat. {b} needs {m}.", "A {a} tem {n} lugar livre. {b} precisa de {m}."], ["{a} has room for {n}, and this invitation now needs {m}. Pick another table, or choose Not seated and place them later.", "A {a} tem espaço para {n} e este convite precisa agora de {m}. Escolha outra mesa, ou Sem lugar e sente-os mais tarde."], ["{a} is full", "A {a} está cheia"], ["{a} is no longer seated", "{a} já não tem lugar"], ["Swapped {a} and {b}", "A {a} e a {b} trocaram de convidados"], ["Moved {n} invitations from {a} to {b}", "{n} convites passaram da {a} para a {b}"], ["Moved {n} invitation from {a} to {b}", "{n} convite passou da {a} para a {b}"], ["Moved {a}'s guests to {b}", "Os convidados da {a} passaram para a {b}"], ["{a} has no guests to move", "A {a} não tem convidados para mover"], ["{a}: alcohol not decided", "{a}: álcool por decidir"], ["{a}: Alcohol served", "{a}: com álcool"], ["{a}: No alcohol", "{a}: sem álcool"], ["{a}: English", "{a}: inglês"], ["{a}: Português", "{a}: português"], ["{a}: {n} free", "{a}: {n} livres"], ["Exported. {n} not-seated people aren't on the guest page.", "Exportado. {n} pessoas sem lugar não aparecem na página dos convidados."], ["Exported. {n} not-seated person isn't on the guest page.", "Exportado. {n} pessoa sem lugar não aparece na página dos convidados."], ["Remove {a}?", "Remover {a}?"], ["{a} will be removed from the {b} guest list and their seat freed.", "{a} vai sair da lista de convidados ({b}) e o lugar fica livre."], ["{a} will be removed from the {b} guest list.", "{a} vai sair da lista de convidados ({b})."], ["Delete {a}?", "Apagar {a}?"], ["The {n} guests seated here will move back to Not seated.", "Os {n} convidados sentados aqui voltam para Sem lugar."], ["The {n} guest seated here will move back to Not seated.", "O {n} convidado sentado aqui volta para Sem lugar."], ["The {n} invitations seated here will move back to Not seated.", "Os {n} convites sentados aqui voltam para Sem lugar."], ["All {n} seated guests at the {a} go back to Not seated. Tables and the guest list stay as they are.", "Os {n} convidados sentados ({a}) voltam para Sem lugar. As mesas e a lista de convidados ficam como estão."], ["Copy {n} guests?", "Copiar {n} convidados?"], ["The guest list from {a} is copied here, with no one seated. Changes after this stay separate for each event.", "A lista de convidados de {a} é copiada para aqui, sem ninguém sentado. As alterações seguintes ficam separadas em cada evento."], ["Seat {n} people", "Sentar {n} pessoas"], [": {n} people · {a}", ": {n} pessoas · {a}"], ["Split across tables: {a}.", "Divididos por várias mesas: {a}."], ["{n} people won't fit. Add a table or more seats for them.", "{n} pessoas não cabem. Adicione uma mesa ou mais lugares."], ["{n} person won't fit. Add a table or more seats for them.", "{n} pessoa não cabe. Adicione uma mesa ou mais lugares."], ["Bring {a}'s guests here", "Trazer os convidados da {a} para aqui"], ["Move everyone to {a}", "Mover todos para a {a}"], ["Swap with {a}", "Trocar com a {a}"], ["Release to swap places with {a}", "Solte para trocar de posição com a {a}"], ["Drop on {a}", "Largar na {a}"], ["Seated at {a}", "Sentado na {a}"], ["No invitation fits the {n} free seats", "Nenhum convite cabe nos {n} lugares livres"], ["No invitation fits the {n} free seat", "Nenhum convite cabe no {n} lugar livre"], ["+ Seat a guest here… ({n} free)", "+ Sentar um convidado aqui… ({n} livres)"], ["{a}: {n} of {m} seats filled", "{a}: {n} de {m} lugares ocupados"], ["{n} new invitations · {m} people", "{n} convites novos · {m} pessoas"], ["{n} new invitation · {m} people", "{n} convite novo · {m} pessoas"], ["{n} new invitation · {m} person", "{n} convite novo · {m} pessoa"], ["and {n} more rows", "e mais {n} linhas"], ["{name} placed on the plan", "{name} colocada na planta"], ["{a} placed on the plan", "{a} colocada na planta"], ["Remove {name} from the guest list completely? Their {seats} will be freed. This can't be undone.", "Remover {name} da lista de convidados de vez? {seats} ficará livre. Não é possível desfazer."], ["Rectangle · {n} seats", "Retangular · {n} lugares"], ["Round · {n} seats", "Redonda · {n} lugares"], ["Serpentine · {n} seats", "Serpentina · {n} lugares"], ["Half moon · {n} seats", "Meia-lua · {n} lugares"], ["Head table · {n} seats", "Mesa de honra · {n} lugares"], ["{a} · {n} seats", "{a} · {n} lugares"], ["moved to {a}", "passou para a {a}"]];/*PT-END*/
+const NUMK=/^[nmkp]$/;
+const PATS=PT_PAT.map(([en,pt])=>{const names=[];const src=en.replace(/[.*+?^${}()|[\]\\]/g,"\\$&").replace(/\\\{(\w+)\\\}/g,(m,n)=>{names.push(n);return NUMK.test(n)?"(\\d+(?:[.,]\\d+)?)":"(.+?)"});return {re:new RegExp("^"+src+"$"),names,pt}});
+function trCore(core){if(PT[core]!=null)return PT[core];if(!/[a-z]/i.test(core))return null;
+  for(const P of PATS){const m=P.re.exec(core);if(m){const v={};P.names.forEach((n,i)=>{let x=m[i+1];if(!NUMK.test(n)&&PT[x]!=null)x=PT[x];v[n]=x});return P.pt.replace(/\{(\w+)\}/g,(z,n)=>v[n])}}return null}
+function t_(k,v){const fill=s=>v?s.replace(/\{(\w+)\}/g,(m,n)=>v[n]!=null?v[n]:m):s;
+  if(UI.lang!=="pt")return fill(k);if(PT[k]!=null)return fill(PT[k]);const e=fill(k),p=trCore(e);return p!=null?p:e}
+const I18N={skip:"script,style,textarea,[data-nt],.gname,.in-title,datalist",attrs:["placeholder","aria-label","title","data-hint"]},ORIG=new WeakMap();
+function trStr(s){const m=/^(\s*)([\s\S]*?)(\s*)$/.exec(s);if(!m[2])return null;const o=trCore(m[2]);return o!=null&&o!==m[2]?m[1]+o+m[3]:null}
+function trT(x){const cur=x.data,o=ORIG.get(x);
+  if(UI.lang==="pt"){if(o&&o.pt===cur)return;const v=trStr(cur);if(v!=null){ORIG.set(x,{en:cur,pt:v});x.data=v}}
+  else if(o&&o.pt===cur){ORIG.delete(x);x.data=o.en}}
+function trA(el){let o=ORIG.get(el);I18N.attrs.forEach(a=>{const cur=el.getAttribute(a);if(cur==null)return;const r=o&&o[a];
+  if(UI.lang==="pt"){if(r&&r.pt===cur)return;const v=trStr(cur);if(v!=null){if(!o){o={};ORIG.set(el,o)}o[a]={en:cur,pt:v};el.setAttribute(a,v)}}
+  else if(r&&r.pt===cur){delete o[a];el.setAttribute(a,r.en)}})}
+function trNode(n){
+  if(n.nodeType===3){const p=n.parentElement;if(!p||p.closest(I18N.skip))return;trT(n);return}
+  if(n.nodeType!==1||n.closest(I18N.skip))return;trA(n);
+  const w=document.createTreeWalker(n,5,{acceptNode:x=>x.nodeType===1&&x.matches(I18N.skip)?2:1});let x;
+  while(x=w.nextNode()){if(x.nodeType===3)trT(x);else trA(x)}
+}
+const I18N_MO=new MutationObserver(ms=>{for(const m of ms){if(m.type==="childList")m.addedNodes.forEach(trNode);else trNode(m.target)}});
+function langChrome(){document.documentElement.lang=UI.lang==="pt"?"pt-PT":"en";const h=document.getElementById("h1t");if(h)h.innerHTML=UI.lang==="pt"?"Mapa de <em>lugares</em>":"Seating <em>chart</em>";
+  document.querySelectorAll("[data-ui-lang]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.uiLang===UI.lang)))}
+function startI18n(){langChrome();trNode(document.body);
+  I18N_MO.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:I18N.attrs})}
+function setLang(l){if(l===UI.lang)return;UI.lang=l;try{localStorage.setItem("seating-lang",l)}catch(e){}
+  langChrome();trNode(document.body);
+  if(typeof render==="function"&&S.mode!=="loading")render();if(GD.gid)gdSt()}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-ui-lang]");if(b)setLang(b.dataset.uiLang)});
+/*GEO-START*/
+/* Shared floor-plan geometry: table shapes, chairs, room features. Used by the planner and the guest page. */
+var GEO=(function(){
+  var W=1600,H=985,ENTRY={x:800,y:952};
+  var SHAPES=["long","round","serpentine","halfmoon","head"];
+  var FX_KINDS=["dj","buffet_long","buffet_small","tea","bar","dance"];
+  var FX_SIZE={dj:{w:188,h:64},buffet_long:{w:245,h:38},buffet_small:{w:110,h:38},tea:{w:240,h:38},bar:{w:62,h:82},dance:{w:300,h:300}};
+  var FX_LABEL={pt:{dj:"DJ",buffet_long:"Buffet",buffet_small:"Buffet",tea:"Mesa de Chá",bar:"Bar",dance:"Pista"},en:{dj:"DJ",buffet_long:"Buffet",buffet_small:"Buffet",tea:"Tea table",bar:"Bar",dance:"Dance floor"}};
+  var DEFAULT_FIXTURES=[
+    {id:"fx-pista",kind:"dance",shape:"rect",x:800,y:553,w:180,h:851},
+    {id:"fx-buffet-top",kind:"buffet_long",x:412,y:47,w:245,h:38},
+    {id:"fx-tea",kind:"tea",x:1180,y:47,w:240,h:38},
+    {id:"fx-buffet-left",kind:"buffet_long",x:33,y:489,w:42,h:394},
+    {id:"fx-buffet-right",kind:"buffet_long",x:1567,y:489,w:42,h:394},
+    {id:"fx-bar",kind:"bar",x:1546,y:133,w:62,h:82},
+    {id:"fx-dj",kind:"dj",x:1042,y:914,w:188,h:64}
+  ];
+  function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+  function cap(t){return Math.max(0,parseInt(t.capacity,10)||0)}
+  function rotPt(x,y,cx,cy,deg){var a=deg*Math.PI/180,c=Math.cos(a),s=Math.sin(a),dx=x-cx,dy=y-cy;return [cx+dx*c-dy*s,cy+dx*s+dy*c]}
+  function serpPts(p,N){var pts=[];for(var i=0;i<=N;i++){var s=i/N,bx=p.x1+(p.x2-p.x1)*s,by=p.y1+(p.y2-p.y1)*s,L=Math.hypot(p.x2-p.x1,p.y2-p.y1)||1,nx=-(p.y2-p.y1)/L,ny=(p.x2-p.x1)/L,o=(p.amp||34)*(p.ph||1)*Math.sin(2*Math.PI*s);pts.push([bx+nx*o,by+ny*o])}return pts}
+  function chairsRect(x,y,w,h,c){
+    var out=[],vert=h>=w,ends=c>=6?2:0,side=c-ends,a=Math.ceil(side/2),b=side-a,k,t;
+    for(k=0;k<a;k++){t=(k+.5)/a;out.push(vert?[x-11,y+h*t]:[x+w*t,y-11])}
+    for(k=0;k<b;k++){t=(k+.5)/b;out.push(vert?[x+w+11,y+h*t]:[x+w*t,y+h+11])}
+    if(ends){if(vert){out.push([x+w/2,y-11]);out.push([x+w/2,y+h+11])}else{out.push([x-11,y+h/2]);out.push([x+w+11,y+h/2])}}
+    return out}
+  function boxOf(pts,pad){var xs=pts.map(function(a){return a[0]}),ys=pts.map(function(a){return a[1]});return {x0:Math.min.apply(null,xs)-pad,x1:Math.max.apply(null,xs)+pad,y0:Math.min.apply(null,ys)-pad,y1:Math.max.apply(null,ys)+pad}}
+  /* geometry of one table: outline, chairs, centre, bounding box, label and count positions */
+  function table(t){
+    var p=t.pos,c=cap(t),sh=t.shape||"long",g={chairs:[],shape:sh};if(!p)return null;
+    if(sh==="serpentine"&&p.x1!=null){
+      var pts=serpPts(p,48);g.kind="serp";g.pts=pts;g.d="M"+pts.map(function(a){return a[0].toFixed(1)+" "+a[1].toFixed(1)}).join(" L");
+      var per=Math.ceil(c/2);[1,-1].forEach(function(sd,si){var cnt=si===0?per:c-per;for(var k=0;k<cnt;k++){var s=(k+.5)/cnt,i=Math.round(s*48),a=pts[Math.max(0,i-1)],b=pts[Math.min(48,i+1)],m=pts[i],L=Math.hypot(b[0]-a[0],b[1]-a[1])||1;g.chairs.push([m[0]-(b[1]-a[1])/L*31*sd,m[1]+(b[0]-a[0])/L*31*sd])}});
+      g.cx=(p.x1+p.x2)/2;g.cy=(p.y1+p.y2)/2;g.box=boxOf(pts.concat(g.chairs),14);
+    }else if((sh==="round"||sh==="halfmoon")&&p.r!=null){
+      g.cx=p.x;g.cy=p.y;g.r=p.r;var rr=p.r+13,k2;
+      if(sh==="round"){g.kind="round";for(k2=0;k2<c;k2++){var an=(-90+k2*360/Math.max(c,1))*Math.PI/180;g.chairs.push([p.x+rr*Math.cos(an),p.y+rr*Math.sin(an)])}
+        g.box={x0:p.x-rr-12,x1:p.x+rr+12,y0:p.y-rr-12,y1:p.y+rr+12}}
+      else{g.kind="half";g.rot=p.rot||0;
+        for(k2=0;k2<c;k2++){var a2=(180+(k2+.5)*180/Math.max(c,1))*Math.PI/180;g.chairs.push(rotPt(p.x+rr*Math.cos(a2),p.y+rr*Math.sin(a2),p.x,p.y,g.rot))}
+        var arc=[];for(var q=0;q<=12;q++){var a3=(180+q*15)*Math.PI/180;arc.push(rotPt(p.x+p.r*Math.cos(a3),p.y+p.r*Math.sin(a3),p.x,p.y,g.rot))}
+        g.box=boxOf(arc.concat(g.chairs,[[p.x,p.y]]),12)}
+    }else if(p.w!=null){
+      var x=p.x-p.w/2,y=p.y-p.h/2;g.rect={x:x,y:y,w:p.w,h:p.h};g.cx=p.x;g.cy=p.y;
+      if(sh==="head"){g.kind="head";var side=(p.rot||0)%360,horiz=p.w>=p.h,k3;
+        for(k3=0;k3<c;k3++){var tt=(k3+.5)/Math.max(c,1);
+          if(horiz)g.chairs.push([x+p.w*tt,side===180?y+p.h+12:y-12]);else g.chairs.push([side===270?x-12:x+p.w+12,y+p.h*tt])}}
+      else{g.kind="rect";g.chairs=chairsRect(x,y,p.w,p.h,c)}
+      g.box=boxOf(g.chairs.concat([[x,y],[x+p.w,y+p.h]]),12);
+    }else return null;
+    g.label=[g.cx,g.box.y0-8];g.count=[g.cx,g.box.y1+22];
+    if(g.label[1]<34)g.label=[g.box.x0-48,g.cy+8];
+    return g;
+  }
+  /* table outline markup (no chairs) */
+  function tableShape(g,top,edge){
+    if(g.kind==="serp")return '<path d="'+g.d+'" class="'+edge+'" fill="none" stroke-width="40" stroke-linecap="round"/><path d="'+g.d+'" class="'+top+'-s" fill="none" stroke-width="36" stroke-linecap="round"/>';
+    if(g.kind==="round")return '<circle cx="'+g.cx+'" cy="'+g.cy+'" r="'+g.r+'" class="'+top+'"/>';
+    if(g.kind==="half")return '<path d="M'+(g.cx-g.r)+' '+g.cy+' A'+g.r+' '+g.r+' 0 0 1 '+(g.cx+g.r)+' '+g.cy+' Z" class="'+top+'" transform="rotate('+g.rot+' '+g.cx+' '+g.cy+')"/>';
+    return '<rect x="'+g.rect.x+'" y="'+g.rect.y+'" width="'+g.rect.w+'" height="'+g.rect.h+'" rx="5" class="'+top+'"/>';
+  }
+  function fixLabel(f,lang){return f.label||(FX_LABEL[lang]||FX_LABEL.pt)[f.kind]||""}
+  function fixBox(f){if(f.kind==="dance"&&f.shape==="oval")return {x0:f.x-f.w/2,x1:f.x+f.w/2,y0:f.y-f.h/2,y1:f.y+f.h/2};return {x0:f.x-f.w/2,x1:f.x+f.w/2,y0:f.y-f.h/2,y1:f.y+f.h/2}}
+  /* one room feature: outline + label */
+  function fixture(f,lang,attrs,cls){
+    var b=fixBox(f),lab=esc(fixLabel(f,lang)),vert=f.h>f.w*1.6,o='<g class="fx fx-'+f.kind+(cls?" "+cls:"")+'"'+(attrs||"")+'>';
+    if(f.kind==="dance"){
+      o+=(f.shape==="oval"?'<ellipse cx="'+f.x+'" cy="'+f.y+'" rx="'+f.w/2+'" ry="'+f.h/2+'" class="fx-dance"/>':'<rect x="'+b.x0+'" y="'+b.y0+'" width="'+f.w+'" height="'+f.h+'" rx="'+(f.shape==="square"?6:2)+'" class="fx-dance"/>');
+      var fs=Math.max(14,Math.min(64,(vert?f.h:f.w)*(f.shape==="oval"?0.62:0.8)/((lab.length||1)*0.98),(vert?f.w:f.h)*0.5));
+      o+='<text x="'+f.x+'" y="'+f.y+'" class="fx-dance-t" style="font-size:'+fs.toFixed(0)+'px"'+(vert?' transform="rotate(-90 '+f.x+' '+f.y+')"':'')+'>'+lab+'</text>';
+    }else{
+      o+='<rect x="'+b.x0+'" y="'+b.y0+'" width="'+f.w+'" height="'+f.h+'" rx="4" class="fx-box"/>';
+      if(f.kind==="dj"){o+='<circle cx="'+(b.x0+f.w*0.2)+'" cy="'+f.y+'" r="'+Math.min(f.h*0.28,22)+'" class="fx-deck"/><circle cx="'+(b.x1-f.w*0.2)+'" cy="'+f.y+'" r="'+Math.min(f.h*0.28,22)+'" class="fx-deck"/>'}
+      o+='<text x="'+f.x+'" y="'+f.y+'" class="fx-t"'+(vert?' transform="rotate(-90 '+f.x+' '+f.y+')"':'')+'>'+lab+'</text>';
+    }
+    return o+'</g>';
+  }
+  function routeTo(t){
+    var g=table(t);if(!g)return null;var sx=ENTRY.x,sy=ENTRY.y-10;
+    if(Math.abs(g.cx-sx)<120&&g.cy<ENTRY.y)return {d:"M"+sx+" "+sy+" L"+sx+" "+(g.box.y1+22),end:[sx,g.box.y1+22]};
+    var left=g.cx<sx,ty=Math.max(60,Math.min(g.cy,H-120)),ex=left?g.box.x1+26:g.box.x0-26;
+    if(g.kind==="serp"){var best=null;g.pts.forEach(function(a){if(Math.abs(a[1]-ty)<40){var v=left?a[0]:-a[0];if(!best||v>best.v)best={v:v,x:a[0]}}});if(best)ex=left?best.x+44:best.x-44}
+    var turn=left?-1:1,r=40;
+    return {d:"M"+sx+" "+sy+" L"+sx+" "+(ty+r)+" Q"+sx+" "+ty+" "+(sx+turn*r)+" "+ty+" L"+ex.toFixed(0)+" "+ty.toFixed(0),end:[ex,ty]};
+  }
+  function shortName(t){if(t.shape==="head")return "Honra";return String(t.name).replace(/^Mesa\s+/i,"").replace(/^Serpentina\s+/i,"Serp. ")}
+  return {W:W,H:H,ENTRY:ENTRY,SHAPES:SHAPES,FX_KINDS:FX_KINDS,FX_SIZE:FX_SIZE,DEFAULT_FIXTURES:DEFAULT_FIXTURES,esc:esc,serpPts:serpPts,table:table,tableShape:tableShape,fixture:fixture,fixLabel:fixLabel,fixBox:fixBox,routeTo:routeTo,shortName:shortName,rotPt:rotPt};
+})();
+/*GEO-END*/
+document.addEventListener("click",e=>{const b=e.target.closest("[data-theme-set]");if(!b)return;THEME=b.dataset.themeSet;applyTheme(THEME);try{localStorage.setItem("seating-theme",THEME)}catch(x){}});
+const EVENTS=[
+  {id:"wedding",label:"Wedding reception",date:"Sat 24 Oct 2026",place:"Quinta das Buganvílias"}
+];
+const SIDES={bride:"Bride's side",groom:"Groom's side",both:"Both"};
+const SHAPES={long:"Rectangle",round:"Round",serpentine:"Serpentine",halfmoon:"Half moon",head:"Head table"};
+const RSVP={confirmed:"Confirmed",pending:"Pending",declined:"Declined"};
+const stOf=g=>g.rsvp==="pending"||g.rsvp==="declined"?g.rsvp:"confirmed";
+const live=g=>stOf(g)!=="declined";
+/* Quinta das Buganvílias floor plan, traced from the venue layout (viewBox 1600 x 985). Used to start the plan when no shared copy exists. */
+const R=(id,name,capacity,order,x,y,h,w)=>({id,name,capacity,shape:"long",order,note:"",pos:{x,y,w:w||56,h}});
+const SP=(id,name,order,x1,y1,x2,y2,ph)=>({id,name,capacity:20,shape:"serpentine",order,note:"",pos:{x1,y1,x2,y2,amp:34,ph}});
+const VENUE=[
+  {id:"honra",name:"Mesa de Honra",capacity:4,shape:"head",order:0,note:"",pos:{x:797,y:74,w:210,h:42}},
+  R("m01","Mesa 01",10,1,127,232,128),R("m02","Mesa 02",10,2,248,232,128),R("m03","Mesa 03",10,3,517,232,128),
+  R("m04","Mesa 04",12,4,977,232,142),R("m05","Mesa 05",10,5,1112,232,128),R("m06","Mesa 06",10,6,1450,232,128),
+  R("m07","Mesa 07",16,7,140,512,200,60),R("m08","Mesa 08",10,8,265,503,128),
+  SP("m09","Mesa 09",9,618,436,585,830,-1),SP("m10","Mesa 10",10,1000,408,1005,828,1),
+  R("m11","Mesa 11",10,11,1177,503,128),R("m12","Mesa 12",10,12,1450,503,128),
+  R("m14","Mesa 14",10,14,150,787,128),R("m15","Mesa 15",10,15,275,787,128),R("m16","Mesa 16",10,16,1238,787,128),
+  R("m17","Mesa 17",10,17,1397,787,128),R("m20","Mesa 20",10,20,398,787,128),R("m22","Mesa 22",12,22,502,455,132),
+  R("mA","Mesa A",12,30,632,232,142),SP("sA","Serpentina A",31,392,186,384,576,-1),SP("sB","Serpentina B",32,1290,176,1290,598,1)
+];
+const LS_KEY="seating-plan-v1";
+
+const S={ev:"wedding",db:null,dl:null,mode:"loading",readOnly:false,plans:{},q:"",filter:"all",group:"",editGuest:null,editTable:null,view:"guests",tview:"plan",pick:null,pending:0,failed:0,flash:null,byGroup:true,collapsed:new Set(),sel:null,rsvpF:""};
+try{const c=JSON.parse(localStorage.getItem("seating-collapsed")||"null");if(Array.isArray(c))S.collapsed=new Set(c);else S.collapsedDefault=true}catch(e){S.collapsedDefault=true}
+function saveCollapsed(){try{localStorage.setItem("seating-collapsed",JSON.stringify([...S.collapsed]))}catch(e){}}
+EVENTS.forEach(e=>S.plans[e.id]={tables:new Map(),guests:new Map(),fixtures:new Map(),loaded:0});
+try{const v=localStorage.getItem("seating-ui-ev");if(v&&S.plans[v])S.ev=v}catch(e){}
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid=()=>{try{return crypto.randomUUID().replace(/-/g,"").slice(0,18)}catch(e){return Date.now().toString(36)+Math.random().toString(36).slice(2,10)}};
+const plan=()=>S.plans[S.ev];
+const norm=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().trim();
+const evInfo=id=>EVENTS.find(e=>e.id===id);
+
+function groupColor(g){if(!g)return "var(--line-strong)";let h=0;for(const c of norm(g))h=(h*31+c.charCodeAt(0))>>>0;return "var(--g"+(h%6+1)+")"}
+function tablesSorted(p){p=p||plan();return [...p.tables.values()].sort((a,b)=>(a.order||0)-(b.order||0)||String(a.name).localeCompare(String(b.name),undefined,{numeric:true}))}
+function guestsAll(p){p=p||plan();return [...p.guests.values()].sort((a,b)=>String(a.name).localeCompare(String(b.name),"pt",{sensitivity:"base"}))}
+function guestsAt(tid,p){p=p||plan();return [...p.guests.values()].filter(g=>g.tableId===tid).sort((a,b)=>(a.seatedAt||0)-(b.seatedAt||0)||String(a.name).localeCompare(String(b.name)))}
+const sz=g=>Math.max(1,parseInt(g.seats,10)||1);
+const sumSz=a=>a.reduce((x,g)=>x+sz(g),0);
+function used(tid,p){return sumSz(guestsAt(tid,p))}
+function isSeated(g,p){p=p||plan();return !!(g.tableId&&p.tables.has(g.tableId))}
+function cap(t){return Math.max(0,parseInt(t.capacity,10)||0)}
+function groups(p){const s=new Set();(p?[p]:Object.values(S.plans)).forEach(pl=>pl.guests.forEach(g=>{if(g.group)s.add(g.group)}));return [...s].sort((a,b)=>a.localeCompare(b,"pt"))}
+
+/* ---------- persistence ---------- */
+const chains=new Map();let active=0;const waiting=[];
+function pool(fn){return new Promise((res,rej)=>{const go=()=>{active++;Promise.resolve().then(fn).then(res,rej).finally(()=>{active--;const n=waiting.shift();if(n)n()})};active<4?go():waiting.push(go)})}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function withRetry(fn){try{return await fn()}catch(e){const c=e&&e.code;if(c==="unavailable"){await sleep(400+Math.random()*600);return fn()}if(c==="resource_exhausted"){await sleep(1500+Math.random()*1000);return fn()}throw e}}
+function enqueue(key,fn){
+  S.pending++;renderSave();
+  const prev=chains.get(key)||Promise.resolve();
+  const p=prev.catch(()=>{}).then(()=>pool(()=>withRetry(fn)));
+  chains.set(key,p);
+  p.catch(handleErr).finally(()=>{if(chains.get(key)===p)chains.delete(key);S.pending--;renderSave()});
+  return p;
+}
+function clean(o){return JSON.parse(JSON.stringify(o))}
+function persist(evId,kind,op,obj){
+  if(S.mode!=="shared"){saveLocal();return}
+  const {id,...body}=obj;
+  const ref=S.db.collection("plans/"+evId+"/"+kind).doc(id);
+  enqueue(evId+"/"+kind+"/"+id,()=>op==="set"?ref.set(clean(body)):ref.delete());
+}
+function put(kind,obj,evId){evId=evId||S.ev;S.plans[evId][kind].set(obj.id,obj);schedule();persist(evId,kind,"set",obj)}
+function del(kind,id,evId){evId=evId||S.ev;S.plans[evId][kind].delete(id);schedule();persist(evId,kind,"del",{id})}
+function saveLocal(){try{const out={};for(const k in S.plans)out[k]={tables:[...S.plans[k].tables.values()],guests:[...S.plans[k].guests.values()],fixtures:[...S.plans[k].fixtures.values()]};localStorage.setItem(LS_KEY,JSON.stringify(out))}catch(e){}}
+function loadLocal(){try{const raw=JSON.parse(localStorage.getItem(LS_KEY)||"null");if(raw)for(const k in raw){if(!S.plans[k])continue;(raw[k].tables||[]).forEach(t=>S.plans[k].tables.set(t.id,t));(raw[k].guests||[]).forEach(g=>S.plans[k].guests.set(g.id,g));if(raw[k].fixtures)raw[k].fixtures.forEach(f=>S.plans[k].fixtures.set(f.id,f));else S.plans[k]._noFx=true}}catch(e){}
+  if(!S.plans.wedding.tables.size){seedLocal()}
+  let had=false;try{had=!!localStorage.getItem(LS_KEY)}catch(e){}
+  if(!S.plans.wedding.fixtures.size&&(S.plans.wedding._noFx||!had))GEO.DEFAULT_FIXTURES.forEach(f=>S.plans.wedding.fixtures.set(f.id,{...f}))}
+function seedLocal(){const p=S.plans.wedding;VENUE.forEach(t=>p.tables.set(t.id,JSON.parse(JSON.stringify(t))))}
+function handleErr(e){
+  const c=e&&e.code;
+  if(c==="invalid_argument"){if(!S.readOnly){S.readOnly=true;applyRO();toast("You can view this plan but not change it.")}return}
+  if(c==="quota_exceeded"){toast("The plan is full. Delete some guests or tables to add more.");return}
+  if(c==="revoked"){toast("Access to this plan changed. Reload to continue.");return}
+  S.failed++;toast("A change didn't save. Check your connection, then try that step again.");
+}
+
+/* ---------- render ---------- */
+let raf=0,deferred=false;
+function editingNow(){const a=document.activeElement;return a&&a.closest&&a.closest(".gedit,.tedit")&&/INPUT|TEXTAREA/.test(a.tagName)}
+function schedule(){if(raf)return;raf=requestAnimationFrame(()=>{raf=0;if(editingNow()||DD.a||LM){deferred=true;return}deferred=false;render()})}
+document.addEventListener("focusout",()=>{if(deferred)setTimeout(()=>{if(!editingNow()){deferred=false;render()}},0)});
+
+function renderSave(){
+  const el=$("#save"),t=$("#saveText");
+  el.classList.toggle("busy",S.pending>0);el.classList.toggle("local",S.mode!=="shared");
+  if(S.mode==="loading")t.textContent="Opening your plan…";
+  else if(S.mode==="local")t.textContent="Saved on this device only";
+  else if(S.pending>0)t.textContent="Saving "+S.pending+" change"+(S.pending>1?"s":"")+"…";
+  else t.textContent=S.readOnly?"View only":"All changes saved";
+}
+function render(){
+  renderSave();renderTabs();renderStats();renderRSVP();renderFilters();renderGuests();renderTables();
+  const dl=$("#groupList");dl.innerHTML=groups().map(g=>`<option value="${esc(g)}">`).join("");
+  $("#exportBtn").hidden=!S.dl;$("#exportSite").hidden=!S.dl||!!S.hosted;const pb=$("#publishBtn");if(pb)pb.hidden=!S.hosted||S.readOnly;
+}
+function renderTabs(){if(EVENTS.length<2)return;
+  $("#tabs").innerHTML=EVENTS.map(e=>{const p=S.plans[e.id];const n=p.guests.size;const s=[...p.guests.values()].filter(g=>isSeated(g,p)).length;
+    return `<button class="tab" role="tab" aria-selected="${e.id===S.ev}" data-act="ev" data-ev="${e.id}"><span><b>${esc(e.label)}</b><small>${esc(e.date)} · ${esc(e.place)}</small></span><span class="tab-count num">${n?s+" / "+n+" seated":"No guests yet"}</span></button>`}).join("");
+}
+function renderStats(){
+  const p=plan(),gs=[...p.guests.values()].filter(live),ts=tablesSorted();
+  const seated=sumSz(gs.filter(g=>isSeated(g))),total=sumSz(gs);
+  let capacity=0,open=0,over=0;ts.forEach(t=>{const n=used(t.id);capacity+=cap(t);open+=Math.max(0,cap(t)-n);if(n>cap(t))over++});
+  const pct=total?Math.round(seated/total*100):0;
+  const short=Math.max(0,total-capacity);
+  $("#stats").innerHTML=`
+    <div class="stat"><span class="v">${total}</span><span class="l">People</span></div>
+    <div class="stat"><span class="v">${seated}</span><span class="l">Seated</span></div>
+    <div class="stat${total-seated?"":""}"><span class="v">${total-seated}</span><span class="l">Not seated</span></div>
+    <div class="stat"><span class="v">${open}</span><span class="l">Open seats</span></div>
+    <div class="stat"><span class="v">${ts.length}</span><span class="l">Tables</span></div>
+    ${over?`<div class="stat alert"><span class="v">${over}</span><span class="l">Over capacity</span></div>`:""}
+    <div class="progress"><div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="Guests seated"><i style="width:${pct}%"></i></div>
+    <span>${total?pct+"% seated · "+gs.length+" invitations":"Add guests to start seating"}${short?` · <strong style="color:var(--bad)">${short} more seat${short>1?"s":""} needed than your tables hold</strong>`:total?` · ${capacity} seats across ${ts.length} tables`:""}</span></div>`;
+}
+function renderFilters(){
+  const gs=[...plan().guests.values()],seated=gs.filter(g=>isSeated(g)).length;
+  const gl=groups(plan());if(S.group&&!gl.includes(S.group))S.group="";
+  const f=(k,l,n)=>`<button class="fchip" data-act="filter" data-f="${k}" aria-pressed="${S.filter===k}">${l}<span class="num">${n}</span></button>`;
+  $("#filters").innerHTML=`<span class="seg sm" role="group" aria-label="List order"><button data-act="bygroup" data-v="1" aria-pressed="${S.byGroup}">By category</button><button data-act="bygroup" data-v="0" aria-pressed="${!S.byGroup}">A to Z</button></span>`+f("all","All",gs.length)+f("unseated","Not seated",gs.length-seated)+f("seated","Seated",seated)+
+    (gl.length?`<select class="group-filter" id="groupFilter" aria-label="Filter by group"><option value="">All groups</option>${gl.map(g=>`<option ${g===S.group?"selected":""}>${esc(g)}</option>`).join("")}</select>`:"");
+  $("#gCount").textContent=gs.length?gs.length+" invitations · "+sumSz(gs)+" people":"";
+}
+function tableOptions(g){
+  const ts=tablesSorted();
+  let h=`<option value="">Not seated</option>`;
+  ts.forEach(t=>{const n=used(t.id),c=cap(t),free=c-n,mine=g.tableId===t.id,need=sz(g);
+    const dis=!mine&&free<need;
+    const lab=mine?`${t.name} · ${n}/${c}`:(free>=need?`${t.name} · ${free} free`:free>0?`${t.name} · ${free} free, needs ${need}`:`${t.name} · full`);
+    h+=`<option value="${esc(t.id)}" ${mine?"selected":""} ${dis?"disabled":""}>${esc(lab)}</option>`});
+  return h;
+}
+function renderGuests(){
+  const p=plan(),q=norm(S.q);
+  let gs=guestsAll();
+  if(!gs.length){
+    const other=EVENTS.find(e=>e.id!==S.ev&&S.plans[e.id].guests.size);
+    $("#glist").innerHTML=S.mode==="loading"?`<div class="empty"><p>Loading guests…</p></div>`:`<div class="empty"><h3>No guests yet</h3><p>Paste the names from your guest list spreadsheet, or add guests one at a time above.</p>
+      <div class="row write-only" style="flex-wrap:wrap;justify-content:center"><button class="btn primary" data-act="import">Import guest list</button>${other?`<button class="btn" data-act="copy-from" data-from="${other.id}">Copy guests from ${esc(other.label)}</button>`:""}</div></div>`;
+    return;
+  }
+  gs=gs.filter(g=>(!q||norm(g.name).includes(q)||norm(g.group).includes(q)||norm(g.note).includes(q))&&(!S.group||g.group===S.group)&&(S.filter==="all"||(S.filter==="seated")===isSeated(g))&&(!S.rsvpF||stOf(g)===S.rsvpF));
+  if(!gs.length){$("#glist").innerHTML=`<div class="empty"><p>No guests match. Clear the search or pick another filter.</p></div>`;return}
+  // section: not seated first, then seated
+  const un=gs.filter(g=>!isSeated(g)),se=gs.filter(g=>isSeated(g));
+  const row=g=>{
+    const ed=S.editGuest===g.id,seated=isSeated(g);
+    const st=stOf(g);
+    let h=`<div class="grow${ed?" editing":""}${st==="declined"?" declined":""}" data-gid="${esc(g.id)}"${ed||S.readOnly?"":` data-drag="${esc(g.id)}"`}>
+      <div style="min-width:0"><div class="gtop"><button class="gname" data-act="edit-guest" title="${esc(t_("Edit {a}",{a:g.name}))}">${esc(g.name)}</button><button class="icon-btn gpen write-only" data-act="edit-guest" aria-label="Edit ${esc(g.name)}"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.5 2.5l3 3L6 13H3v-3z"/></svg></button></div>
+      <div class="gmeta">${st!=="confirmed"?`<span class="st-pill ${st}">${t_(RSVP[st])}</span>`:""}${sz(g)>1?`<span class="party">${sz(g)} seats</span>`:""}${g.group?`<span class="chip" style="--c:${groupColor(g.group)}">${esc(g.group)}</span>`:""}${g.side&&SIDES[g.side]&&g.side!=="both"?`<span class="chip" style="--c:transparent">${esc(SIDES[g.side])}</span>`:""}${g.note?`<span class="note">${esc(g.note)}</span>`:""}</div></div>
+      <select class="seat${seated?"":" unseated"}" data-act="seat" aria-label="Table for ${esc(g.name)}" ${S.readOnly?"disabled":""}>${tableOptions(g)}</select>`;
+    if(false)h+=`<form class="gedit" data-act="save-guest" autocomplete="off">
+      <label class="full">Name<input class="field" name="name" value="${esc(g.name)}" required></label>
+      <label>Group<input class="field" name="group" value="${esc(g.group||"")}" list="groupList"></label>
+      <label>Side<select class="field" name="side"><option value="">Not set</option>${Object.entries(SIDES).map(([k,v])=>`<option value="${k}" ${g.side===k?"selected":""}>${v}</option>`).join("")}</select></label>
+      <label>Seats on this invitation<input class="field num" name="seats" type="number" min="1" max="20" value="${sz(g)}"></label>
+      <label>Age group<input class="field" name="age" value="${esc(g.age||"")}" placeholder="30, 40, 60"></label>
+      <label class="full">Note (dietary, child, access needs)<input class="field" name="note" value="${esc(g.note||"")}"></label>
+      <div class="acts"><button type="button" class="btn danger" data-act="delete-guest">Remove guest</button><span class="row"><button type="button" class="btn" data-act="cancel-guest">Cancel</button><button class="btn primary">Save</button></span></div></form>`;
+    return h+`</div>`;
+  };
+  let h="";$("#glist").classList.remove("by-cat");
+  if(S.byGroup){
+    if(S.collapsedDefault){S.collapsedDefault=false;new Set(gs.map(g=>g.group||"No category")).forEach(k=>S.collapsed.add(k))}
+    const by={};gs.forEach(g=>{const k=g.group||"No category";(by[k]=by[k]||[]).push(g)});
+    const keys=Object.keys(by).sort((a,b)=>a==="No category"?1:b==="No category"?-1:a.localeCompare(b,"pt"));
+    const searching=!!norm(S.q);
+    const allOpen=keys.every(k=>!S.collapsed.has(k)),allShut=keys.every(k=>S.collapsed.has(k));
+    h+=`<div class="acc-tools"><span>${keys.length} categories</span><span><button class="linkbtn" data-act="cat-all" data-v="open" ${allOpen?"disabled":""}>Expand all</button><button class="linkbtn" data-act="cat-all" data-v="shut" ${allShut?"disabled":""}>Collapse all</button></span></div>`;
+    keys.forEach(k=>{const l=by[k],ppl=sumSz(l),seat=sumSz(l.filter(g=>isSeated(g)));
+      const open=searching||!S.collapsed.has(k)||l.some(g=>g.id===S.editGuest),done=ppl>0&&seat===ppl;
+      const pid="acc-"+keys.indexOf(k);
+      h+=`<div class="acc${open?" open":""}${done?" done":""}">
+        <button class="gsec cat acc-h" data-act="cat-toggle" data-cat="${esc(k)}" aria-expanded="${open}" aria-controls="${pid}">
+          <span class="acc-t"><svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2.5L7.5 6 4 9.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><i style="--c:${groupColor(k==="No category"?"":k)}"></i><span class="acc-n">${esc(k)}</span></span>
+          <span class="acc-c num">${done?`<svg viewBox="0 0 12 12" class="tick" aria-hidden="true"><path d="M2.5 6.5l2.3 2.3 4.7-5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>`:""}${seat}/${ppl}<span class="acc-bar"><b style="width:${ppl?Math.round(seat/ppl*100):0}%"></b></span></span>
+        </button>
+        <div class="acc-b" id="${pid}" ${open?"":"hidden"}>${l.map(row).join("")}</div></div>`});
+    $("#glist").classList.add("by-cat");$("#glist").innerHTML=h;const ef=$("#glist .gedit input[name=name]");if(ef&&S._focusEdit){ef.focus();ef.select();S._focusEdit=false}
+    return;
+  }
+  if(un.length)h+=`<div class="gsec"><span>Not seated</span><span class="num">${sumSz(un)} people</span></div>`+un.map(row).join("");
+  if(se.length)h+=`<div class="gsec"><span>Seated</span><span class="num">${sumSz(se)} people</span></div>`+se.map(row).join("");
+  $("#glist").innerHTML=h;
+  const ef=$("#glist .gedit input[name=name]");if(ef&&S._focusEdit){ef.focus();ef.select();S._focusEdit=false}
+}
+function diagram(t,n){
+  const c=cap(t),total=Math.max(c,n),shape=t.shape||"round";
+  const pts=[];
+  if(shape==="round"){const R=48,cx=60,cy=60;for(let i=0;i<total;i++){const a=-Math.PI/2+i*2*Math.PI/Math.max(total,1);pts.push([cx+R*Math.cos(a),cy+R*Math.sin(a)])}}
+  else if(shape==="head"){const w=96,x0=60-w/2;for(let i=0;i<total;i++){pts.push([total===1?60:x0+i*(w/(total-1||1)),40])}}
+  else if(shape==="halfmoon"){for(let i=0;i<total;i++){const a=Math.PI+(i+.5)*Math.PI/Math.max(total,1);pts.push([60+50*Math.cos(a),86+50*Math.sin(a)])}}
+  else{const top=Math.ceil(total/2),bot=total-top,w=96,x0=60-w/2;for(let i=0;i<top;i++)pts.push([top===1?60:x0+i*(w/(top-1)),36]);for(let i=0;i<bot;i++)pts.push([bot===1?60:x0+i*(w/(bot-1)),84])}
+  const r=Math.max(3,Math.min(7.5,(shape==="round"?280:120)/Math.max(total,1)));
+  const body=shape==="round"?`<circle cx="60" cy="60" r="31" fill="var(--sunk)" stroke="var(--line-strong)"/>`:
+    shape==="head"?`<rect x="8" y="50" width="104" height="22" rx="4" fill="var(--sunk)" stroke="var(--line-strong)"/>`:
+    shape==="halfmoon"?`<path d="M24 86a36 36 0 0172 0z" fill="var(--sunk)" stroke="var(--line-strong)"/>`:
+    shape==="serpentine"?`<path d="M12 60 C30 46 44 74 60 60 S92 46 108 60" fill="none" stroke="var(--line-strong)" stroke-width="28" stroke-linecap="round"/><path d="M12 60 C30 46 44 74 60 60 S92 46 108 60" fill="none" stroke="var(--sunk)" stroke-width="26" stroke-linecap="round"/>`:
+    `<rect x="8" y="46" width="104" height="28" rx="4" fill="var(--sunk)" stroke="var(--line-strong)"/>`;
+  const vb=shape==="head"?"0 26 120 54":shape==="round"?"0 0 120 120":shape==="halfmoon"?"0 22 120 74":"0 24 120 72";
+  const dots=pts.map((p,i)=>{const filled=i<n,overS=i>=c;return `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${r.toFixed(1)}" fill="${overS?"var(--bad)":filled?"var(--accent)":"var(--surface)"}" stroke="${overS?"var(--bad)":filled?"var(--accent)":"var(--line-strong)"}" stroke-width="1.2"/>`}).join("");
+  const label=shape==="round"?`<text x="60" y="64" text-anchor="middle" font-size="12" fill="var(--muted)" style="font-family:var(--font-body);font-variant-numeric:tabular-nums">${n}/${c}</text>`:"";
+  return `<svg viewBox="${vb}" role="img" aria-label="${esc(t.name)}: ${n} of ${c} seats filled">${body}${dots}${label}</svg>`;
+}
+const LANGS=["Português","English","Português & English","Swahili","Changana"];
+function langCode(l){l=String(l||"").trim();if(!l)return "";const m={"português":"PT","portugues":"PT","english":"EN","inglês":"EN","ingles":"EN","swahili":"SW","changana":"XC","xichangana":"XC","french":"FR","francês":"FR"};
+  return l.split(/\s*(?:&|,|\/|\+| e | and )\s*/i).filter(Boolean).map(p=>m[p.toLowerCase()]||p.slice(0,2).toUpperCase()).join("·")}
+const ALC={yes:"Alcohol served",no:"No alcohol"};
+const isEN=t=>/english|ingl[eê]s/i.test(String(t.language||""))&&!/portugu/i.test(String(t.language||""));
+const langName=t=>isEN(t)?"English":"Português";
+function quickSet(t){if(S.readOnly)return `<div class="ttags">${tableTags(t)}</div>`;const en=isEN(t),a=t.alcohol||"";
+  return `<div class="qset">
+    <div class="qrow"><span class="qlbl">Language</span><span class="seg sm" role="group" aria-label="Language at ${esc(t.name)}"><button data-act="set-lang" data-v="pt" aria-pressed="${!en}">Português</button><button data-act="set-lang" data-v="en" aria-pressed="${en}">English</button></span></div>
+    <div class="qrow"><span class="qlbl">Alcohol</span><span class="seg sm alc" role="group" aria-label="Alcohol at ${esc(t.name)}"><button data-act="set-alc" data-v="yes" aria-pressed="${a==="yes"}">${GLASS}Served</button><button data-act="set-alc" data-v="no" aria-pressed="${a==="no"}">${GLASS_NO}None</button></span>${a?"":`<span class="qhint">Not decided</span>`}</div>
+  </div>`}
+function tableTags(t){const b=[];b.push(`<span class="ttag lang${isEN(t)?" en":""}" title="Language">${langName(t)}</span>`);if(t.alcohol==="yes")b.push(`<span class="ttag alc yes">${GLASS}Alcohol</span>`);if(t.alcohol==="no")b.push(`<span class="ttag alc no">${GLASS_NO}No alcohol</span>`);return b.join("")}
+const GLASS='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4.5 2h7l-.6 4.2A3 3 0 018 8.8a3 3 0 01-2.9-2.6zM8 8.8V14M5.5 14h5"/></svg>';
+const GLASS_NO='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4.5 2h7l-.6 4.2A3 3 0 018 8.8a3 3 0 01-2.9-2.6zM8 8.8V14M5.5 14h5M2 2l12 12"/></svg>';
+function x0h(t){return t.pos.x+t.pos.w/2+14}
+function shortName(t){if(t.shape==="head")return "Honra";return String(t.name).replace(/^Mesa\s+/i,"").replace(/^Serpentina\s+/i,"Serp. ")}
+function serpPoints(p,N){const pts=[];for(let i=0;i<=N;i++){const s=i/N,bx=p.x1+(p.x2-p.x1)*s,by=p.y1+(p.y2-p.y1)*s;const L=Math.hypot(p.x2-p.x1,p.y2-p.y1)||1;const nx=-(p.y2-p.y1)/L,ny=(p.x2-p.x1)/L;const o=p.amp*(p.ph||1)*Math.sin(2*Math.PI*s);pts.push([bx+nx*o,by+ny*o])}return pts}
+function floorTags(t,x,y,left){
+  const code=isEN(t)?"EN":"",a=t.alcohol;if(!code&&!a)return "";
+  const tw=code?code.length*12.5+20:0,gw=a?36:0,gap=code&&a?6:0,W=tw+gap+gw;let x0=left?x:x-W/2,o="";
+  if(code){o+=`<rect x="${x0}" y="${y-17}" width="${tw}" height="27" rx="13.5" class="ft-lang"/><text x="${x0+tw/2}" y="${y+2.5}" class="ft-lang-t">${esc(code)}</text>`;x0+=tw+gap}
+  if(a){const c=a==="yes"?"ft-alc yes":"ft-alc no";o+=`<g class="${c}" transform="translate(${x0},${y-17})"><rect width="36" height="27" rx="13.5"/><g transform="translate(5,1.5) scale(1.6)"><path d="M4.5 2h7l-.6 4.2A3 3 0 018 8.8a3 3 0 01-2.9-2.6zM8 8.8V14M5.5 14h5" fill="none" stroke-width="1.3"/>${a==="no"?`<path d="M2.5 2.5l11 11" stroke-width="1.5"/>`:""}</g></g>`}
+  return `<g class="ft-tags">${o}</g>`;
+}
+function fixturesSorted(){return [...plan().fixtures.values()].sort((a,b)=>(a.kind==="dance"?0:1)-(b.kind==="dance"?0:1))}
+function seatStates(tid){const out=[];guestsAt(tid).forEach(g=>{for(let i=0;i<sz(g);i++)out.push(stOf(g))});return out}
+function floorSVG(ts){
+  const q=norm(S.q);const hits=new Set();
+  if(q)plan().guests.forEach(g=>{if(g.tableId&&(norm(g.name).includes(q)||norm(g.group).includes(q)))hits.add(g.tableId)});
+  const sel=S.layout?S.sel:null;
+  let out=`<svg viewBox="0 0 1600 985" class="floor-svg" role="group" aria-label="Floor plan, Quinta das Buganvílias">
+    <rect x="6" y="6" width="1588" height="973" rx="6" fill="var(--surface)" stroke="var(--fg)" stroke-width="5"/>`;
+  fixturesSorted().forEach(f=>{out+=GEO.fixture(f,UI.lang,` data-fid="${esc(f.id)}"${S.layout?' tabindex="0" role="button" aria-label="'+esc(GEO.fixLabel(f,UI.lang))+'"':''}`,(sel&&sel.type==="fx"&&sel.id===f.id?"selected":"")+(S.flash===f.id?" flash":""))});
+  out+=`<rect x="712" y="955" width="176" height="30" fill="var(--surface)"/><text x="800" y="971" class="fx-l fx-entry">${UI.lang==="pt"?"Entrada":"Entrance"}</text>`;
+  const geos=new Map();ts.filter(t=>t.pos).forEach(t=>{const g=GEO.table(t);if(g)geos.set(t.id,g)});
+  const crowded=(id,x,y)=>{for(const [k,o] of geos){if(k===id)continue;if(Math.abs(o.label[0]-x)<52&&Math.abs(o.label[1]-y)<34)return true;const b=o.box;if(b&&x+30>b.x0&&x-30<b.x1&&y+14>b.y0&&y-17<b.y1)return true}return false};
+  ts.filter(t=>t.pos).forEach(t=>{
+    const g=geos.get(t.id);if(!g)return;
+    const n=used(t.id),c=cap(t),over=n>c,full=n===c&&c>0;
+    const state=over?"over":full?"full":n?"part":"empty";
+    const isSel=S.pick===t.id,picked=sel&&sel.type==="t"&&sel.id===t.id,hit=hits.has(t.id),st=seatStates(t.id),pend=st.filter(x=>x==="pending").length;
+    const ch=g.chairs.map((a,i)=>`<circle cx="${a[0].toFixed(1)}" cy="${a[1].toFixed(1)}" r="6.5" class="${i<n?(st[i]==="pending"?"ch on pend":"ch on"):"ch"}"/>`).join("");
+    out+=`<g class="ft ${state}${isSel?" sel":""}${picked?" picked":""}${hit?" hit":""}${S.flash===t.id?" flash":""}" data-act="pick" data-tid="${esc(t.id)}" data-drop="${esc(t.id)}"${S.readOnly?"":` data-tdrag="${esc(t.id)}"`} tabindex="0" role="button" aria-pressed="${isSel}" aria-label="${esc(t.name)}, ${n}/${c}">
+      <title>${esc(t.name)}: ${n}/${c}${over?" !":""} · ${langName(t)}${t.alcohol?" · "+ALC[t.alcohol]:""}${guestsAt(t.id).length?"\n"+esc(guestsAt(t.id).map(x=>x.name+(sz(x)>1?" ("+sz(x)+")":"")+(stOf(x)==="pending"?" ?":"")).join("\n")):""}</title>${GEO.tableShape(g,"ft-top","ft-edge")}${ch}
+      <text x="${g.label[0].toFixed(0)}" y="${g.label[1].toFixed(0)}" class="ft-name">${esc(GEO.shortName(t))}</text>
+      <text x="${g.count[0].toFixed(0)}" y="${g.count[1].toFixed(0)}" class="ft-cnt">${n}/${c}${pend?" · "+pend+"?":""}</text>
+      ${crowded(t.id,g.count[0],g.count[1]+28)?floorTags(t,g.count[0]+(String(n).length+String(c).length)*7+16,g.count[1]-5,true):floorTags(t,g.count[0],g.count[1]+28,false)}
+    </g>`;
+  });
+  return out+`</svg>`;
+}
+function renderTray(unseated){
+  const tr=$("#tray");
+  document.body.classList.toggle("has-tray",!!(unseated.length&&!S.readOnly));
+  if(!unseated.length||S.readOnly){tr.hidden=true;return}
+  tr.hidden=false;
+  const gl=[...new Set(unseated.map(g=>g.group||"No category"))].sort((a,b)=>a.localeCompare(b,"pt"));
+  if(S.trayGroup&&!gl.includes(S.trayGroup))S.trayGroup="";
+  const list=unseated.filter(g=>!S.trayGroup||(g.group||"No category")===S.trayGroup);
+  tr.innerHTML=`<div class="tray-h"><span><strong>${sumSz(unseated)} ${sumSz(unseated)===1?"person":"people"}</strong> not seated · hold a name, then drag it onto a table</span>
+    <select id="trayGroup" class="group-filter" aria-label="Category"><option value="">All categories</option>${gl.map(k=>`<option ${k===S.trayGroup?"selected":""}>${esc(k)}</option>`).join("")}</select></div>
+    <div class="tray-list">${list.map(g=>`<span class="tchip" data-drag="${esc(g.id)}" style="--c:${groupColor(g.group)}"><i></i>${esc(g.name)}${sz(g)>1?`<b>${sz(g)}</b>`:""}</span>`).join("")}</div>`;
+}
+function placePop(t){
+  const fl=$("#floor");if(!t||!t.pos)return;
+  const g=fl.querySelector(`.ft[data-tid="${CSS.escape(t.id)}"]`);if(!g)return;
+  const list=guestsAt(t.id),n=sumSz(list),c=cap(t);
+  const pop=document.createElement("div");pop.className="pop"+(S._popShown===t.id?"":" anim");S._popShown=t.id;pop.dataset.drop=t.id;pop.dataset.tid=t.id;
+  pop.innerHTML=`<div class="pop-h"><b>${esc(t.name)}</b><span class="num${n>c?" bad":""}">${n}/${c}</span><button class="x" data-act="pick-close" aria-label="Close">×</button></div>
+    <div class="pop-q">${quickSet(t)}</div>
+    ${list.length?`<ol>${list.map(x=>`<li class="${S.justDropped===x.id?"new":""}" data-gid="${esc(x.id)}" data-drag="${esc(x.id)}" data-from="table"><span><i style="--c:${groupColor(x.group)}"></i>${esc(x.name)}${sz(x)>1?`<b class="party">×${sz(x)}</b>`:""}${stOf(x)==="pending"?`<b class="pend-mark" title="${t_("Pending")}">?</b>`:""}</span><span class="li-acts"><button class="x write-only" data-act="edit-guest" aria-label="Edit ${esc(x.name)}" title="Edit"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.5 2.5l3 3L6 13H3v-3z"/></svg></button><button class="x write-only" data-act="unseat" aria-label="Unseat ${esc(x.name)}" title="Unseat">×</button></span></li>`).join("")}</ol>`:`<p>No one here yet. Drag guests onto this table.</p>`}
+    <div class="pop-f">${n>=c?"Table is full":(c-n)+" seat"+(c-n>1?"s":"")+" free"}</div>`;
+  fl.appendChild(pop);
+  const fr=fl.getBoundingClientRect(),r=g.getBoundingClientRect(),pw=pop.offsetWidth,ph=pop.offsetHeight;
+  let left=r.right-fr.left+10;if(left+pw>fr.width-6)left=r.left-fr.left-pw-10;if(left<6)left=Math.max(6,Math.min(fr.width-pw-6,r.left-fr.left));
+  let top=r.top-fr.top;top=Math.max(6,Math.min(top,fr.height-ph-6));
+  pop.style.left=left+"px";pop.style.top=top+"px";
+}
+function renderTables(){
+  const ts=tablesSorted();
+  $("#tCount").textContent=ts.length?"· "+ts.length:"";
+  if(!ts.length){
+    $("#tray").hidden=true;
+    $("#tview").hidden=true;$("#floorWrap").hidden=true;$("#tgrid").hidden=false;
+    const other=EVENTS.find(e=>e.id!==S.ev&&S.plans[e.id].tables.size);
+    $("#tgrid").innerHTML=S.mode==="loading"?`<div class="panel empty"><p>Loading tables…</p></div>`:`<div class="panel empty" style="grid-column:1/-1"><h3>No tables yet</h3><p>Add each table with its number of seats. You can rename them later, for example "Mesa 01" or "Família".</p>
+      <div class="row write-only" style="flex-wrap:wrap;justify-content:center"><button class="btn primary" data-act="add-table">Add table</button>${other?`<button class="btn" data-act="copy-tables" data-from="${other.id}">Copy tables from ${esc(other.label)}</button>`:""}</div></div>`;
+    return;
+  }
+  const unseated=guestsAll().filter(g=>!isSeated(g)&&live(g));
+  const byGroup={};unseated.forEach(g=>{const k=g.group||"No group";(byGroup[k]=byGroup[k]||[]).push(g)});
+  const gkeys=Object.keys(byGroup).sort((a,b)=>a==="No group"?1:b==="No group"?-1:a.localeCompare(b,"pt"));
+  const hasPlan=ts.some(t=>t.pos);
+  const mode=hasPlan?S.tview:"cards";
+  $("#tview").hidden=!hasPlan;
+  document.querySelectorAll("#tview button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===mode)));
+  $("#floorWrap").hidden=mode!=="plan";$("#tgrid").hidden=mode==="plan";
+  if(mode!=="plan")S.layout=false;
+  const lb=$("#layoutBtn");lb.hidden=mode!=="plan"||S.readOnly;lb.setAttribute("aria-pressed",String(!!S.layout));lb.querySelector("span").textContent=S.layout?"Done editing":"Edit layout";
+  $("#layoutBar").hidden=!S.layout||!!S.expanded;document.body.classList.toggle("layout-mode",!!S.layout);
+  if(mode!=="plan")S.expanded=false;
+  document.body.classList.toggle("map-expanded",!!S.expanded);$("#xbar").hidden=!S.expanded;
+  $("#xLayout").textContent=S.layout?"Done editing":"Edit layout";
+  $("#toolbox").hidden=!S.layout||S.readOnly;renderInspector();$("#xLayout").setAttribute("aria-pressed",String(!!S.layout));$("#xReset").hidden=!S.layout;
+  {const gs=[...plan().guests.values()];$("#xStats").textContent=` · ${sumSz(gs.filter(g=>isSeated(g)))}/${sumSz(gs)} seated`}
+  const card=t=>{
+    const list=guestsAt(t.id),n=sumSz(list),c=cap(t),over=n>c,full=n===c&&c>0;let run=0;
+    if(S.editTable===t.id&&!S.readOnly){
+      return `<article class="tcard" data-tid="${esc(t.id)}"><form class="tedit" data-act="save-table" autocomplete="off">
+        <label class="full">Table name<input class="field" name="name" value="${esc(t.name)}" required></label>
+        <label>Seats<input class="field num" name="capacity" type="number" min="1" max="60" value="${c}" required></label>
+        <label>Shape<select class="field" name="shape">${Object.entries(SHAPES).map(([k,v])=>`<option value="${k}" ${t.shape===k?"selected":""}>${v}</option>`).join("")}</select></label>
+        <label>List order<input class="field num" name="order" type="number" value="${t.order||0}"></label>
+        <label>Note<input class="field" name="note" value="${esc(t.note||"")}" placeholder="Near the dance floor"></label>
+        <label>Language spoken<select class="field" name="language"><option value="Português">Português</option><option value="English" ${isEN(t)?"selected":""}>English</option></select></label>
+        <label>Alcohol<select class="field" name="alcohol"><option value="">Not decided</option><option value="yes" ${t.alcohol==="yes"?"selected":""}>Alcohol served</option><option value="no" ${t.alcohol==="no"?"selected":""}>No alcohol</option></select></label>
+        <div class="acts"><button type="button" class="btn danger" data-act="delete-table">Delete table</button><span class="row"><button type="button" class="btn" data-act="cancel-table">Cancel</button><button class="btn primary">Save</button></span></div>
+      </form></article>`;
+    }
+    const room=c-n,fit=k=>byGroup[k].filter(g=>sz(g)<=room);
+    const opts=gkeys.filter(k=>fit(k).length).map(k=>`<optgroup label="${esc(k)}">${fit(k).map(g=>`<option value="${esc(g.id)}">${esc(g.name)}${sz(g)>1?" ("+sz(g)+")":""}</option>`).join("")}</optgroup>`).join("");
+    return `<article class="tcard${over?" over":full?" full":""}${S.flash===t.id?" flash":""}" data-tid="${esc(t.id)}" data-drop="${esc(t.id)}">
+      <div class="thead"${S.readOnly?"":` data-tdrag="${esc(t.id)}" title="Drag onto another table to swap"`}><div style="min-width:0"><div class="tname">${esc(t.name)}</div><div class="tsub">${esc(SHAPES[t.shape]||SHAPES.long)} · ${t_("{n} seats",{n:c})}${t.note?" · "+esc(t.note):""}</div></div>
+        <span class="row" style="gap:4px;flex:none"><span class="tcount num">${over?(n-c)+" over":n+"/"+c}</span><button class="icon-btn write-only" data-act="edit-table" aria-label="Edit ${esc(t.name)}"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.5 2.5l3 3L6 13H3v-3z"/></svg></button></span></div>
+      ${quickSet(t)}
+      <div class="diagram">${diagram(t,n)}</div>
+      ${n?`<ol class="tlist">${list.map(g=>{run+=sz(g);return `<li class="${run>c?"overseat":""}${S.justDropped===g.id?" new":""}" data-gid="${esc(g.id)}" data-drag="${esc(g.id)}" data-from="table"><span class="nm" title="${esc(g.name)}${g.note?" · "+esc(g.note):""}"><i style="--c:${groupColor(g.group)}"></i>${esc(g.name)}${sz(g)>1?`<b class="party">×${sz(g)}</b>`:""}${stOf(g)==="pending"?`<b class="pend-mark" title="${t_("Pending")}">?</b>`:""}</span><span class="li-acts"><button class="x write-only" data-act="edit-guest" aria-label="Edit ${esc(g.name)}" title="Edit"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.5 2.5l3 3L6 13H3v-3z"/></svg></button><button class="x write-only" data-act="unseat" aria-label="Unseat ${esc(g.name)} from ${esc(t.name)}" title="Unseat">×</button></span></li>`}).join("")}</ol>`:`<div class="tempty">No one seated yet</div>`}
+      <select class="seat unseated write-only" data-act="seat-at" aria-label="Seat a guest at ${esc(t.name)}" ${(n>=c||!opts||S.readOnly)?"disabled":""}>
+        <option value="">${n>=c?"Table is full":!unseated.length?"Everyone is seated":!opts?"No invitation fits the "+room+" free seat"+(room>1?"s":""):"+ Seat a guest here… ("+room+" free)"}</option>${n<c?opts:""}</select>
+      ${t.pos&&!S.readOnly?`<select class="seat move-sel write-only" data-act="swap-pos" aria-label="Swap ${esc(t.name)}'s place on the map"><option value="">⇆ Swap this table's place on the map with…</option>${tablesSorted().filter(o=>o.id!==t.id&&o.pos&&kindOf(o)===kindOf(t)).map(o=>`<option value="${esc(o.id)}">${esc(o.name)}</option>`).join("")}</select>`:""}
+      ${n&&!S.readOnly?`<select class="seat move-sel write-only" data-act="move-table" aria-label="Move or swap everyone at ${esc(t.name)}"><option value="">⇄ Swap guests with another table…</option>${tablesSorted().filter(o=>o.id!==t.id).map(o=>{const ck=swapCheck(t.id,o.id),m=used(o.id);return `<option value="${esc(o.id)}" ${ck.ok?"":"disabled"}>${esc(o.name)} · ${ck.ok?(m?"swap with "+m+" people":"empty, move here"):ck.msg}</option>`}).join("")}</select>`:""}
+    </article>`;
+  };
+  if(mode==="plan"){
+    $("#tgrid").innerHTML="";
+    renderTray(unseated);
+    const off=ts.filter(t=>!t.pos);
+    $("#floor").innerHTML=floorSVG(ts)+(off.length?`<div class="offplan"><span>${S.layout?"Drag onto the plan to place:":"Not on the floor plan:"}</span>${off.map(t=>{const n=used(t.id);return `<button class="fchip offchip" data-act="pick" data-tid="${esc(t.id)}" data-drop="${esc(t.id)}" aria-pressed="${S.pick===t.id}">${esc(t.name)} <span class="num">${n}/${cap(t)}</span></button>`}).join("")}</div>`:"");
+    const pick=S.pick&&plan().tables.get(S.pick);
+    if(!S.layout)placePop(pick);
+    $("#detail").innerHTML=pick?card(pick):`<div class="detail-hint">${S.layout?`<strong>Rearranging tables.</strong> Drag a table to move it on the plan. Press Done when finished.`:`<strong>Drag a guest onto a table</strong> to seat them. <strong>Drag a table onto another table</strong> to swap everyone between them. Tap a table to see who is there.`}</div>`;
+  }else{
+    $("#floor").innerHTML="";$("#detail").innerHTML="";
+    renderTray(unseated);
+    $("#tgrid").innerHTML=ts.map(card).join("");
+  }
+  if(S.flash){setTimeout(()=>{S.flash=null},800)}
+  const tf=$(".tables-pane .tedit input[name=name]");if(tf&&S._focusTable){tf.focus();tf.select();S._focusTable=false}
+}
+function applyRO(){document.body.classList.toggle("ro",S.readOnly);schedule()}
+
+/* ---------- dialogs ---------- */
+function confirmBox(title,bodyHtml,okLabel,danger){
+  return new Promise(res=>{const d=$("#confirmDlg");$("#cTitle").textContent=title;$("#cBody").innerHTML=bodyHtml;const ok=$("#cOk");ok.textContent=okLabel||"OK";ok.className="btn "+(danger?"danger":"primary");
+    d.returnValue="";const onClose=()=>{d.removeEventListener("close",onClose);res(d.returnValue==="yes")};d.addEventListener("close",onClose);d.showModal()});
+}
+let toastT=0;
+function toast(msg,undo){const t=$("#toast");t.textContent=msg;
+  if(undo){const b=document.createElement("button");b.type="button";b.className="toast-undo";b.textContent="Undo";b.onclick=()=>{t.hidden=true;undo()};t.appendChild(b)}
+  t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{t.hidden=true},undo?7000:3200)}
+
+/* ---------- actions ---------- */
+function seatGuest(gid,tid){
+  const g=plan().guests.get(gid);if(!g)return;
+  const ng={...g,tableId:tid||null,seatedAt:tid?Date.now():null};
+  put("guests",ng);if(tid){S.flash=tid}
+}
+document.addEventListener("change",e=>{
+  const el=e.target;const act=el.dataset&&el.dataset.act;
+  if(el.id==="groupFilter"){S.group=el.value;schedule();return}
+  if(el.id==="trayGroup"){S.trayGroup=el.value;schedule();return}
+  if(S.readOnly)return;
+  if(act==="seat"){const gid=el.closest("[data-gid]").dataset.gid;seatGuest(gid,el.value)}
+  else if(act==="seat-at"){const tid=el.closest("[data-tid]").dataset.tid;if(el.value)seatGuest(el.value,tid)}
+  else if(act==="move-table"){const tid=el.closest("[data-tid]").dataset.tid;if(el.value)swapTables(tid,el.value)}
+  else if(act==="swap-pos"){const tid=el.closest("[data-tid]").dataset.tid;if(el.value)swapPositions(tid,el.value)}
+});
+document.addEventListener("submit",e=>{
+  const f=e.target;if(f.method==="dialog"||f.getAttribute("method")==="dialog")return;e.preventDefault();if(S.readOnly)return;
+  if(f.id==="guestForm"){saveGuestDlg();return}
+  if(f.id==="addGuest"){
+    const name=$("#newName").value.trim(),group=$("#newGroup").value.trim();if(!name)return;
+    const dup=[...plan().guests.values()].some(g=>norm(g.name)===norm(name));
+    put("guests",{id:uid(),name,group,side:"",note:"",tableId:null,seatedAt:null,createdAt:Date.now()});
+    $("#newName").value="";$("#newName").focus();toast(dup?`Added ${name}. A guest with this name already exists.`:`Added ${name}`);return;
+  }
+  const act=f.dataset.act,fd=new FormData(f);
+  if(act==="save-guest"){const gid=f.closest("[data-gid]").dataset.gid,g=plan().guests.get(gid);if(!g)return;
+    put("guests",{...g,name:String(fd.get("name")).trim()||g.name,group:String(fd.get("group")||"").trim(),side:String(fd.get("side")||""),note:String(fd.get("note")||"").trim(),seats:Math.max(1,parseInt(fd.get("seats"),10)||1),age:String(fd.get("age")||"").trim()});S.editGuest=null;document.activeElement&&document.activeElement.blur();render()}
+  if(act==="save-table"){const tid=f.closest("[data-tid]").dataset.tid,t=plan().tables.get(tid);if(!t)return;
+    const capacity=Math.max(1,Math.min(60,parseInt(fd.get("capacity"),10)||t.capacity));
+    const nshape=String(fd.get("shape")),npos=t.pos&&nshape!==t.shape?newPos({...t,shape:nshape,capacity},...ctrOf(t.pos)):t.pos;
+    put("tables",{...t,pos:npos,name:String(fd.get("name")).trim()||t.name,capacity,shape:nshape,order:parseFloat(fd.get("order"))||0,note:String(fd.get("note")||"").trim(),language:String(fd.get("language")||"").trim(),alcohol:String(fd.get("alcohol")||"")});S.editTable=null;document.activeElement&&document.activeElement.blur();render();
+    const n=used(tid);if(n>capacity)toast(`${n-capacity} guest${n-capacity>1?"s are":" is"} over the new seat count`)}
+});
+$("#search").addEventListener("input",e=>{S.q=e.target.value;schedule()});
+document.addEventListener("keydown",e=>{const ft=e.target.closest&&e.target.closest(".ft");if(ft&&(e.key==="Enter"||e.key===" ")){e.preventDefault();ft.dispatchEvent(new MouseEvent("click",{bubbles:true}));return}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&(S.editGuest||S.editTable)&&!document.querySelector("dialog[open]")){S.editGuest=null;S.editTable=null;document.activeElement&&document.activeElement.blur();render()}});
+
+document.addEventListener("click",async e=>{
+  const b=e.target.closest("[data-act]");if(!b||b.tagName==="SELECT"||b.tagName==="FORM")return;
+  const act=b.dataset.act;
+  switch(act){
+    case "ev":S.ev=b.dataset.ev;S.editGuest=S.editTable=null;S.group="";try{localStorage.setItem("seating-ui-ev",S.ev)}catch(x){}render();return;
+    case "filter":S.filter=b.dataset.f;schedule();return;
+    case "pick-close":S.pick=null;S._popShown=null;render();return;
+    case "cat-toggle":{const k=b.dataset.cat;if(norm(S.q))return;S.collapsed.has(k)?S.collapsed.delete(k):S.collapsed.add(k);saveCollapsed();render();
+      const nb=[...document.querySelectorAll('[data-act="cat-toggle"]')].find(x=>x.dataset.cat===k);nb&&nb.focus({preventScroll:true});return}
+    case "cat-all":{const ks=new Set(guestsAll().map(g=>g.group||"No category"));if(b.dataset.v==="open")S.collapsed.clear();else ks.forEach(k=>S.collapsed.add(k));saveCollapsed();render();return}
+    case "bygroup":S.byGroup=b.dataset.v==="1";schedule();return;
+    case "tview":S.tview=b.dataset.v;S.editTable=null;render();return;
+    case "expand":S.expanded=!S.expanded;render();if(S.expanded){const fs=document.querySelector(".floor-scroll");fs&&(fs.scrollLeft=0)}return;
+    case "layout":if(S.readOnly)return;S.layout=!S.layout;S.sel=null;if(S.layout)S.pick=null;render();if(S.layout)toast(t_("Drag items from the toolbox onto the plan, or drag anything on the plan to move it."));return;
+    case "rsvpf":S.rsvpF=b.dataset.v&&S.rsvpF!==b.dataset.v?b.dataset.v:"";if(S.rsvpF){S.filter="all";S.view="guests";$("#board").dataset.view="guests"}render();if(S.rsvpF&&S.byGroup)S.collapsed.clear();render();return;
+    case "layout-reset":{if(S.readOnly)return;const moved=VENUE.filter(v=>{const t=plan().tables.get(v.id);return t&&(JSON.stringify(t.pos)!==JSON.stringify(v.pos)||t.shape!==v.shape)});
+      const fxNow=[...plan().fixtures.values()],fxSame=fxNow.length===GEO.DEFAULT_FIXTURES.length&&GEO.DEFAULT_FIXTURES.every(d=>{const f=plan().fixtures.get(d.id);return f&&f.x===d.x&&f.y===d.y&&f.w===d.w&&f.h===d.h&&(f.shape||"")===(d.shape||"")&&!f.label});
+      if(!moved.length&&fxSame){toast(t_("Everything is already in the venue layout"));return}
+      if(await confirmBox(t_("Reset to venue layout?"),`<p>${t_("Tables from the Quinta das Buganvílias plan go back to their original spot and shape, and the dance floor, buffets, tea table, bar and DJ return to where the venue has them. Room items you added are removed. Tables you added stay where they are, and guests stay seated.")}</p>`,t_("Reset layout"))){
+        moved.forEach(v=>{const t=plan().tables.get(v.id);put("tables",{...t,shape:v.shape,pos:{...v.pos}})});
+        fxNow.forEach(f=>{if(!GEO.DEFAULT_FIXTURES.some(d=>d.id===f.id))del("fixtures",f.id)});GEO.DEFAULT_FIXTURES.forEach(d=>put("fixtures",{...d}));S.sel=null;toast(t_("Layout reset"))}return}
+    case "pick":{if(S.layout)return;const tid=b.dataset.tid;S.pick=S.pick===tid?null:tid;S.editTable=null;render();
+      if(e.detail===0){const g=document.querySelector(`.ft[data-tid="${tid}"],.offchip[data-tid="${tid}"]`);g&&g.focus()}
+      if(S.pick&&window.matchMedia("(max-width:860px)").matches)setTimeout(()=>{const d=$("#detail");d&&d.scrollIntoView({block:"nearest",behavior:"smooth"})},40);return}
+    case "view":S.view=b.dataset.v;$("#board").dataset.view=S.view;document.querySelectorAll(".switch button").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.v===S.view)));return;
+    case "copy-list":copyList();return;
+    case "export":exportCSV();return;
+    case "export-site":exportSite();return;
+  }
+  if(S.readOnly)return;
+  switch(act){
+    case "edit-guest":{const gid=b.closest("[data-gid]").dataset.gid;openGuest(gid);break}
+    case "cancel-guest":S.editGuest=null;render();break;
+    case "delete-guest":{const gid=b.closest("[data-gid]").dataset.gid,g=plan().guests.get(gid);if(!g)break;
+      if(await confirmBox("Remove "+g.name+"?",`<p>${esc(g.name)} will be removed from the ${esc(evInfo(S.ev).label)} guest list${isSeated(g)?" and their seat freed":""}.</p>`,"Remove guest",true)){S.editGuest=null;del("guests",gid);toast("Removed "+g.name)}break}
+    case "unseat":{const gid=b.closest("[data-gid]").dataset.gid;seatGuest(gid,null);break}
+    case "edit-table":{S.editTable=b.closest("[data-tid]").dataset.tid;S._focusTable=true;render();break}
+    case "cancel-table":S.editTable=null;render();break;
+    case "delete-table":{const tid=b.closest("[data-tid]").dataset.tid,t=plan().tables.get(tid);if(!t)break;const list=guestsAt(tid);
+      if(await confirmBox("Delete "+t.name+"?",`<p>${list.length?`The ${list.length} guest${list.length>1?"s":""} seated here will move back to Not seated.`:"This table has no one seated."}</p>`,"Delete table",true)){
+        list.forEach(g=>put("guests",{...g,tableId:null,seatedAt:null}));S.editTable=null;if(S.pick===tid)S.pick=null;del("tables",tid);toast("Deleted "+t.name)}break}
+    case "add-table":addTable();break;
+    case "set-lang":{const tid=b.closest("[data-tid]").dataset.tid,t=plan().tables.get(tid);if(!t)break;const v=b.dataset.v==="en"?"English":"Português";if(t.language!==v){put("tables",{...t,language:v});toast(t.name+": "+v)}break}
+    case "set-alc":{const tid=b.closest("[data-tid]").dataset.tid,t=plan().tables.get(tid);if(!t)break;const v=t.alcohol===b.dataset.v?"":b.dataset.v;put("tables",{...t,alcohol:v});toast(t.name+": "+(v?ALC[v]:"alcohol not decided"));break}
+    case "import":openImport();break;
+    case "import-cancel":$("#importDlg").close();break;
+    case "import-go":doImport();break;
+    case "autoseat":autoSeat();break;
+    case "clear-seats":{const se=[...plan().guests.values()].filter(g=>g.tableId);if(!se.length){toast("No one is seated yet");break}
+      if(await confirmBox("Clear all seats?",`<p>All ${se.length} seated guests at the ${esc(evInfo(S.ev).label)} go back to Not seated. Tables and the guest list stay as they are.</p>`,"Clear seats",true)){se.forEach(g=>put("guests",{...g,tableId:null,seatedAt:null}));toast("Cleared "+se.length+" seats")}break}
+    case "copy-from":{const from=S.plans[b.dataset.from];const src=[...from.guests.values()];
+      if(await confirmBox("Copy "+src.length+" guests?",`<p>The guest list from ${esc(evInfo(b.dataset.from).label)} is copied here, with no one seated. Changes after this stay separate for each event.</p>`,"Copy guests")){src.forEach(g=>put("guests",{...g,id:uid(),tableId:null,seatedAt:null}));toast("Copied "+src.length+" guests")}break}
+    case "copy-tables":{const from=S.plans[b.dataset.from];const src=[...from.tables.values()];src.forEach(t=>put("tables",{...t,id:uid()}));toast("Copied "+src.length+" tables");break}
+  }
+});
+function addTable(){
+  const ts=tablesSorted();const nums=ts.map(t=>{const m=/^(?:Mesa|Table) (\d+)$/.exec(t.name);return m?+m[1]:0});const next=(nums.length?Math.max(0,...nums):0)+1;
+  const last=ts.filter(t=>t.shape!=="head").pop();
+  const t={id:uid(),name:"Mesa "+String(next).padStart(2,"0"),capacity:10,shape:"long",order:next,note:""};
+  put("tables",t);S.flash=t.id;S.pick=t.id;
+  toast("Added "+t.name+" with "+t.capacity+" seats");
+  setTimeout(()=>{const el=document.querySelector(`[data-tid="${t.id}"]`);el&&el.scrollIntoView({block:"nearest",behavior:"smooth"})},60);
+}
+
+/* ---------- drag and drop (mouse, touch and pen) ---------- */
+const DD={p:null,a:null,suppress:false,raf:0,last:null};
+document.addEventListener("pointerdown",e=>{
+  if(S.readOnly||e.button>0||DD.a)return;
+  if(S.layout)return;
+  const src=e.target.closest("[data-drag],[data-tdrag]");if(!src)return;
+  if(e.target.closest("select,input,textarea,a,form,button:not(.gname)"))return;
+  DD.p={gid:src.dataset.drag,tid:src.dataset.tdrag,kind:src.dataset.tdrag?"table":"guest",from:src.dataset.from||"list",x:e.clientX,y:e.clientY,src,type:e.pointerType,timer:0};
+  if(e.pointerType==="mouse")e.preventDefault();
+  else DD.p.timer=setTimeout(()=>{if(DD.p)startDrag(DD.p.x,DD.p.y)},280);
+});
+document.addEventListener("pointermove",e=>{
+  const p=DD.p;
+  if(p&&!DD.a){const d=Math.hypot(e.clientX-p.x,e.clientY-p.y);
+    if(p.type==="mouse"){if(d>5)startDrag(e.clientX,e.clientY)}else if(d>10){clearTimeout(p.timer);DD.p=null}
+    return}
+  if(DD.a){e.preventDefault();moveDrag(e.clientX,e.clientY)}
+},{passive:false});
+document.addEventListener("touchmove",e=>{if(DD.a||LM)e.preventDefault()},{passive:false});
+document.addEventListener("contextmenu",e=>{if(DD.a||DD.p)e.preventDefault()});
+document.addEventListener("pointerup",e=>{if(DD.p&&!DD.a){clearTimeout(DD.p.timer);DD.p=null;return}if(DD.a)endDrag(true)});
+document.addEventListener("pointercancel",()=>{if(DD.p){clearTimeout(DD.p.timer);DD.p=null}if(DD.a)endDrag(false)});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&DD.a)endDrag(false)});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&S.expanded&&!DD.a&&!LM&&!document.querySelector("dialog[open]")){S.expanded=false;render()}});
+document.addEventListener("click",e=>{if(DD.suppress){e.stopPropagation();e.preventDefault();DD.suppress=false}},true);
+function startDrag(x,y){
+  const p=DD.p;if(!p)return;
+  if(p.kind==="table"){const t=plan().tables.get(p.tid);if(!t||!guestsAt(t.id).length){DD.p=null;if(t)toast(t.name+" has no guests to move");return}
+    const gh=document.createElement("div");gh.className="ghost table";gh.innerHTML=`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" width="14" height="14"><path d="M2 5.5h10l-2.5-2.5M14 10.5H4l2.5 2.5"/></svg>${esc(t.name)}<b>${used(t.id)} people</b>`;
+    document.body.appendChild(gh);document.body.classList.add("dragging");p.src.classList.add("drag-src");
+    DD.a={...p,t,gh,target:null};DD.p=null;try{navigator.vibrate&&navigator.vibrate(12)}catch(err){}moveDrag(x,y);return}
+  const g=plan().guests.get(p.gid);if(!g){DD.p=null;return}
+  const gh=document.createElement("div");gh.className="ghost";gh.innerHTML=`<i style="--c:${groupColor(g.group)}"></i>${esc(g.name)}${sz(g)>1?`<b>${sz(g)} seats</b>`:""}`;
+  document.body.appendChild(gh);document.body.classList.add("dragging");p.src.classList.add("drag-src");
+  DD.a={...p,g,gh,target:null};DD.p=null;
+  try{navigator.vibrate&&navigator.vibrate(12)}catch(err){}
+  moveDrag(x,y);
+}
+function fits(g,tid){if(g.tableId===tid)return true;const t=plan().tables.get(tid);return !!t&&cap(t)-used(tid)>=sz(g)}
+function moveDrag(x,y){
+  const a=DD.a;a.gh.style.transform=`translate(${x+14}px,${y+10}px)`;DD.last=[x,y];
+  const el=document.elementFromPoint(x,y);let t=el&&el.closest("[data-drop]");
+  if(a.kind==="table"){if(t&&(t.dataset.drop===""||t.dataset.drop===a.tid))t=null;
+    if(t!==a.target){if(a.target)a.target.classList.remove("drop-ok","drop-bad");a.target=t;
+      if(t){const c=swapCheck(a.tid,t.dataset.drop);t.classList.add(c.ok?"drop-ok":"drop-bad");a.gh.dataset.hint=c.msg}else a.gh.dataset.hint="Drop on another table"}
+    if(!DD.raf)DD.raf=requestAnimationFrame(autoScroll);return}
+  if(t&&t.dataset.drop===""&&a.from!=="table")t=null;
+  if(t!==a.target){
+    if(a.target)a.target.classList.remove("drop-ok","drop-bad");
+    a.target=t;
+    if(t)t.classList.add(t.dataset.drop===""||fits(a.g,t.dataset.drop)?"drop-ok":"drop-bad");
+    const tb=t&&t.dataset.drop?plan().tables.get(t.dataset.drop):null;
+    a.gh.dataset.hint=tb?(fits(a.g,tb.id)?"Drop on "+tb.name:tb.name+": "+Math.max(0,cap(tb)-used(tb.id))+" free"):(t?"Drop to unseat":"");
+  }
+  if(!DD.raf)DD.raf=requestAnimationFrame(autoScroll);
+}
+function autoScroll(){
+  DD.raf=0;if(!DD.a||!DD.last)return;const [x,y]=DD.last;let moved=false;
+  const edge=70,h=window.innerHeight;
+  if(y<edge){window.scrollBy(0,-Math.ceil((edge-y)/5));moved=true}else if(y>h-edge){window.scrollBy(0,Math.ceil((y-(h-edge))/5));moved=true}
+  const fs=document.querySelector(".floor-scroll");if(fs&&fs.scrollWidth>fs.clientWidth){const r=fs.getBoundingClientRect();if(y>r.top&&y<r.bottom){if(x<r.left+40){fs.scrollLeft-=10;moved=true}else if(x>r.right-40){fs.scrollLeft+=10;moved=true}}}
+  const gl=document.querySelector("#glist");if(gl){const r=gl.getBoundingClientRect();if(x>r.left&&x<r.right){if(y<r.top+40&&y>r.top-10){gl.scrollTop-=12;moved=true}else if(y>r.bottom-40&&y<r.bottom+10){gl.scrollTop+=12;moved=true}}}
+  if(moved){moveDrag(x,y)}
+}
+function endDrag(commit){
+  const a=DD.a;DD.a=null;if(DD.raf){cancelAnimationFrame(DD.raf);DD.raf=0}
+  a.gh.remove();document.body.classList.remove("dragging");a.src.classList.remove("drag-src");
+  if(a.target)a.target.classList.remove("drop-ok","drop-bad");
+  DD.suppress=true;setTimeout(()=>{DD.suppress=false},0);
+  if(commit&&a.target){if(a.kind==="table")swapTables(a.tid,a.target.dataset.drop);else dropOn(a.g.id,a.target.dataset.drop)}
+  if(deferred){deferred=false;schedule()}
+}
+function dropOn(gid,tid){
+  const g=plan().guests.get(gid);if(!g)return;
+  if(!tid){if(g.tableId){seatGuest(gid,null);toast(g.name+" is no longer seated")}return}
+  const t=plan().tables.get(tid);if(!t)return;
+  if(g.tableId===tid){S.pick=tid;render();return}
+  const free=cap(t)-used(tid);
+  if(sz(g)>free){toast(free>0?`${t.name} has ${free} free seat${free>1?"s":""}. ${g.name} needs ${sz(g)}.`:`${t.name} is full`);return}
+  seatGuest(gid,tid);S.pick=tid;S.justDropped=gid;S.editTable=null;
+  clearTimeout(DD.jt);DD.jt=setTimeout(()=>{S.justDropped=null;schedule()},2600);
+  render();
+  toast(`${g.name} seated at ${t.name} · ${used(tid)}/${cap(t)}`);
+}
+
+/* ---------- edit guest dialog ---------- */
+const GD={gid:null,seats:1,st:"confirmed"};
+function gdSt(){document.querySelectorAll('#gdSt [data-v]').forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===GD.st)));const g=plan().guests.get(GD.gid);$("#gdStHint").textContent=GD.st==="declined"&&g&&isSeated(g)?t_("Saving frees their seat."):GD.st==="pending"?t_("Shown with a ? on their table until confirmed."):""}
+const COMPANION=/(&|\+| e |esposa|esposo|marido|mulher|partner|acompanhante|filh|famil|casal)/i;
+function gdTableOpts(){
+  const g=plan().guests.get(GD.gid),cur=$("#gdTable").value||(g&&g.tableId)||"";
+  let h=`<option value="">Not seated</option>`;
+  tablesSorted().forEach(t=>{const mine=g&&g.tableId===t.id,free=cap(t)-used(t.id)+(mine?sz(g):0),ok=free>=GD.seats;
+    h+=`<option value="${esc(t.id)}" ${t.id===cur?"selected":""} ${!ok&&t.id!==cur?"disabled":""}>${esc(t.name)} · ${ok?free+" free":"needs "+GD.seats+", "+free+" free"}</option>`});
+  $("#gdTable").innerHTML=h;
+}
+function gdSeats(){$("#gdSeats").textContent=GD.seats;$('[data-gd="minus"]').disabled=GD.seats<=1;gdTableOpts();gdCheck()}
+function gdCheck(){
+  const g=plan().guests.get(GD.gid),tid=$("#gdTable").value,err=$("#gdErr");
+  if(tid){const t=plan().tables.get(tid),free=cap(t)-used(tid)+(g&&g.tableId===tid?sz(g):0);
+    if(GD.seats>free){err.hidden=false;err.textContent=`${t.name} has room for ${free}, and this invitation now needs ${GD.seats}. Pick another table, or choose Not seated and place them later.`;return false}}
+  err.hidden=true;return true;
+}
+function openGuest(gid){
+  const g=plan().guests.get(gid);if(!g)return;GD.gid=gid;GD.seats=sz(g);GD.st=stOf(g);gdSt();
+  $("#gdTitle").textContent=g.name;$("#gdName").value=g.name;$("#gdGroup").value=g.group||"";$("#gdAge").value=g.age||"";$("#gdNote").value=g.note||"";
+  const t=g.tableId&&plan().tables.get(g.tableId);$("#gdWhere").textContent=t?"Seated at "+t.name:"Not seated";
+  $("#gdTable").innerHTML="";gdTableOpts();$("#gdTable").value=t?t.id:"";
+  $("#gdConfirm").hidden=true;$("#gdActs").hidden=false;$("#gdErr").hidden=true;gdSeats();
+  $("#guestDlg").showModal();
+}
+function saveGuestDlg(){
+  const g=plan().guests.get(GD.gid);if(!g){$("#guestDlg").close();return}
+  const name=$("#gdName").value.trim();if(!name){const e=$("#gdErr");e.hidden=false;e.textContent="Add a name for this invitation.";$("#gdName").focus();return}
+  if(!gdCheck())return;
+  let tid=$("#gdTable").value||null;const decl=GD.st==="declined"&&tid;if(GD.st==="declined")tid=null;
+  put("guests",{...g,rsvp:GD.st,name,group:$("#gdGroup").value.trim(),age:$("#gdAge").value.trim(),note:$("#gdNote").value.trim(),seats:GD.seats,tableId:tid,seatedAt:tid?(tid===g.tableId?g.seatedAt:Date.now()):null});
+  $("#guestDlg").close();
+  const bits=[];if(GD.seats!==sz(g))bits.push(t_(GD.seats>1?"{n} seats":"{n} seat",{n:GD.seats}));if(tid!==(g.tableId||null)&&!decl)bits.push(tid?t_("moved to {a}",{a:plan().tables.get(tid).name}):t_("not seated"));
+  if(GD.st!==stOf(g))bits.push(t_(RSVP[GD.st]).toLowerCase());
+  toast(t_("Saved {name}",{name})+(bits.length?" · "+bits.join(", "):"")+(decl?" · "+t_("seat freed"):""));
+}
+$("#guestDlg").addEventListener("click",e=>{
+  const b=e.target.closest("[data-gd]");if(!b)return;const a=b.dataset.gd,nm=$("#gdName");
+  if(a==="st"){GD.st=b.dataset.v;gdSt()}
+  else if(a==="plus"){GD.seats=Math.min(20,GD.seats+1);gdSeats()}
+  else if(a==="minus"){if(GD.seats>1){GD.seats--;if(GD.seats===1)nm.value=nm.value.replace(/\s*&\s*Acompanhante$/i,"");gdSeats()}}
+  else if(a==="plusone"){GD.seats=Math.min(20,GD.seats+1);if(!COMPANION.test(nm.value))nm.value=nm.value.trim()+" & Acompanhante";gdSeats();toast("Plus one added. Save to keep it.")}
+  else if(a==="cancel")$("#guestDlg").close();
+  else if(a==="remove"){const g=plan().guests.get(GD.gid);$("#gdCText").innerHTML=t_(sz(g)>1?"Remove <b>{name}</b> from the guest list completely? Their {n} seats will be freed. This can't be undone.":"Remove <b>{name}</b> from the guest list completely? Their seat will be freed. This can't be undone.",{name:esc(g.name),n:sz(g)});$("#gdConfirm").hidden=false;$("#gdActs").hidden=true;$("#gdErr").hidden=true;$('[data-gd="keep"]').focus()}
+  else if(a==="keep"){$("#gdConfirm").hidden=true;$("#gdActs").hidden=false}
+  else if(a==="remove-yes"){const g=plan().guests.get(GD.gid);$("#guestDlg").close();if(g){del("guests",g.id);toast("Removed "+g.name+" from the guest list")}}
+});
+$("#gdTable").addEventListener("change",gdCheck);
+
+/* ---------- swap or move a whole table's guests ---------- */
+function swapCheck(A,B){
+  const ta=plan().tables.get(A),tb=plan().tables.get(B),na=used(A),nb=used(B);
+  if(!ta||!tb)return {ok:false,msg:""};
+  if(!na&&!nb)return {ok:false,msg:"Both tables are empty"};
+  if(na>cap(tb))return {ok:false,msg:`${tb.name} holds ${cap(tb)}, needs ${na}`};
+  if(nb>cap(ta))return {ok:false,msg:`${ta.name} holds ${cap(ta)}, needs ${nb}`};
+  return {ok:true,msg:nb&&na?`Swap with ${tb.name}`:na?`Move everyone to ${tb.name}`:`Bring ${tb.name}'s guests here`};
+}
+function swapTables(A,B,isUndo){
+  const ta=plan().tables.get(A),tb=plan().tables.get(B);if(!ta||!tb||A===B)return;
+  const c=swapCheck(A,B);if(!c.ok){toast(c.msg);return}
+  const la=guestsAt(A),lb=guestsAt(B);
+  la.forEach(g=>put("guests",{...g,tableId:B}));lb.forEach(g=>put("guests",{...g,tableId:A}));
+  S.pick=B;S.flash=B;render();
+  if(isUndo){toast("Undone");return}
+  toast(la.length&&lb.length?`Swapped ${ta.name} and ${tb.name}`:la.length?`Moved ${la.length} invitation${la.length>1?"s":""} from ${ta.name} to ${tb.name}`:`Moved ${tb.name}'s guests to ${ta.name}`,()=>swapTables(A,B,true));
+}
+
+/* ---------- rearrange tables on the floor plan ---------- */
+let LM=null;
+function svgPt(x,y){const sv=document.querySelector(".floor-svg");if(!sv)return null;const r=sv.getBoundingClientRect();if(x<r.left||x>r.right||y<r.top||y>r.bottom)return null;return [(x-r.left)*1600/r.width,(y-r.top)*985/r.height,1600/r.width]}
+function shiftPos(p,dx,dy){p={...p};const cl=(v,lo,hi)=>Math.round(Math.max(lo,Math.min(hi,v)));
+  if(p.x1!=null){const minx=Math.min(p.x1,p.x2),maxx=Math.max(p.x1,p.x2),miny=Math.min(p.y1,p.y2),maxy=Math.max(p.y1,p.y2);
+    dx=Math.max(40-minx,Math.min(1560-maxx,dx));dy=Math.max(40-miny,Math.min(950-maxy,dy));p.x1=Math.round(p.x1+dx);p.x2=Math.round(p.x2+dx);p.y1=Math.round(p.y1+dy);p.y2=Math.round(p.y2+dy)}
+  else if(p.r!=null){p.x=cl(p.x+dx,20+p.r,1580-p.r);p.y=cl(p.y+dy,30+p.r,965-p.r)}
+  else{p.x=cl(p.x+dx,20+p.w/2,1580-p.w/2);p.y=cl(p.y+dy,30+p.h/2,965-p.h/2)}return p}
+function newPos(t,X,Y){const c=cap(t)||10;if(t.shape==="serpentine")return shiftPos({x1:X,y1:Y-Math.max(140,c*10),x2:X,y2:Y+Math.max(140,c*10),amp:34,ph:1},0,0);if(t.shape==="head")return shiftPos({x:X,y:Y,w:Math.max(120,c*30),h:42},0,0);if(t.shape==="round")return shiftPos({x:X,y:Y,r:Math.max(30,Math.min(80,c*4.6))},0,0);if(t.shape==="halfmoon")return shiftPos({x:X,y:Y,r:Math.max(36,Math.min(90,c*8)),rot:0},0,0);return shiftPos({x:X,y:Y,w:56,h:Math.max(80,Math.min(240,c*13))},0,0)}
+const kindOf=t=>t.shape==="serpentine"?"serp":t.shape==="head"?"head":t.shape==="round"?"round":t.shape==="halfmoon"?"half":"rect";
+function canSwapPos(A,B){const a=plan().tables.get(A),b=plan().tables.get(B);if(!a||!b||!a.pos||!b.pos)return false;return kindOf(a)===kindOf(b)}
+function ctrOf(p){return p.x1!=null?[(p.x1+p.x2)/2,(p.y1+p.y2)/2]:[p.x,p.y]}
+function swapPositions(A,B,isUndo){
+  const ta=plan().tables.get(A),tb=plan().tables.get(B);if(!ta||!tb||!ta.pos||!tb.pos||A===B)return;
+  if(!canSwapPos(A,B)){toast(`${ta.name} and ${tb.name} are different shapes, so they can't trade places. Drag ${ta.name} to an empty spot instead.`);return}
+  const oa=ta.pos,ob=tb.pos,ca=ctrOf(oa),cb=ctrOf(ob);
+  put("tables",{...ta,pos:shiftPos(oa,cb[0]-ca[0],cb[1]-ca[1])});put("tables",{...tb,pos:shiftPos(ob,ca[0]-cb[0],ca[1]-cb[1])});
+  S.flash=A;render();
+  if(isUndo){toast("Undone");return}
+  toast(`${ta.name} and ${tb.name} swapped places`,()=>{const xa=plan().tables.get(A),xb=plan().tables.get(B);put("tables",{...xa,pos:oa});put("tables",{...xb,pos:ob});render();toast("Undone")});
+}
+function moveTable(tid,dx,dy){const t=plan().tables.get(tid);if(!t||!t.pos)return;put("tables",{...t,pos:shiftPos(t.pos,dx,dy)})}
+document.addEventListener("pointerdown",e=>{
+  if(!S.layout||S.readOnly||e.button>0)return;
+  const nw=e.target.closest("[data-new]");
+  if(nw){e.preventDefault();e.stopImmediatePropagation();const gh=document.createElement("div");gh.className="ghost";gh.textContent=nw.textContent.trim();document.body.appendChild(gh);gh.style.transform=`translate(${e.clientX+14}px,${e.clientY+10}px)`;
+    LM={newItem:nw.dataset.new,place:true,gh,sx:e.clientX,sy:e.clientY,moved:false};document.body.classList.add("dragging");return}
+  const ft=e.target.closest(".ft"),fx=ft?null:e.target.closest(".fx[data-fid]"),chip=e.target.closest(".offchip");
+  if(ft||fx){e.preventDefault();e.stopImmediatePropagation();const p=svgPt(e.clientX,e.clientY);if(!p)return;const el=ft||fx;
+    LM={tid:ft?ft.dataset.tid:null,fid:fx?fx.dataset.fid:null,el,sx:e.clientX,sy:e.clientY,sc:p[2],dx:0,dy:0};el.classList.add("moving");document.body.classList.add("dragging");}
+  else if(chip){e.preventDefault();e.stopImmediatePropagation();const t=plan().tables.get(chip.dataset.tid);
+    const gh=document.createElement("div");gh.className="ghost";gh.textContent=t.name;document.body.appendChild(gh);gh.style.transform=`translate(${e.clientX+14}px,${e.clientY+10}px)`;
+    LM={tid:t.id,place:true,gh};document.body.classList.add("dragging")}
+  else if(e.target.closest(".floor-svg")&&S.sel){S.sel=null;schedule()}
+},true);
+document.addEventListener("pointermove",e=>{if(!LM)return;e.preventDefault();
+  if(LM.place){if(Math.hypot(e.clientX-(LM.sx||0),e.clientY-(LM.sy||0))>6)LM.moved=true;LM.gh.style.transform=`translate(${e.clientX+14}px,${e.clientY+10}px)`;LM.gh.dataset.hint=svgPt(e.clientX,e.clientY)?t_("Drop here"):t_("Drop it on the plan");return}
+  LM.dx=(e.clientX-LM.sx)*LM.sc;LM.dy=(e.clientY-LM.sy)*LM.sc;LM.el.setAttribute("transform",`translate(${LM.dx.toFixed(1)} ${LM.dy.toFixed(1)})`);
+  if(!LM.tid)return;
+  const under=document.elementFromPoint(e.clientX,e.clientY),ov=under&&under.closest(".ft");const o=ov&&ov!==LM.el?ov:null;
+  if(o!==LM.over){if(LM.over)LM.over.classList.remove("swap-target","swap-bad");LM.over=o;
+    if(o){const ok=canSwapPos(LM.tid,o.dataset.tid);o.classList.add(ok?"swap-target":"swap-bad");showLayoutHint(ok?`Release to swap places with ${plan().tables.get(o.dataset.tid).name}`:`${plan().tables.get(o.dataset.tid).name} is a different shape, can't swap`)}else showLayoutHint("")}},{passive:false});
+function showLayoutHint(t){const h=$("#layoutHint");if(!h)return;h.textContent=t;h.hidden=!t}
+function endLayout(e){if(!LM)return;const l=LM;LM=null;document.body.classList.remove("dragging");DD.suppress=true;setTimeout(()=>{DD.suppress=false},0);
+  if(l.place){l.gh.remove();const p=e&&svgPt(e.clientX,e.clientY);
+    if(l.newItem){if(!l.moved){addItem(l.newItem,800,520)}else if(p){addItem(l.newItem,p[0],p[1])}else schedule();return}
+    if(p){const t=plan().tables.get(l.tid);put("tables",{...t,pos:newPos(t,p[0],p[1])});toast(t_("{name} placed on the plan",{name:t.name}))}else schedule();return}
+  l.el.classList.remove("moving");showLayoutHint("");
+  if(Math.abs(l.dx)+Math.abs(l.dy)<=3){l.el.removeAttribute("transform");S.sel=l.tid?{type:"t",id:l.tid}:{type:"fx",id:l.fid};schedule();return}
+  if(l.fid){moveFixture(l.fid,l.dx,l.dy);schedule();return}
+  if(l.over){l.over.classList.remove("swap-target","swap-bad");l.el.removeAttribute("transform");if(canSwapPos(l.tid,l.over.dataset.tid))swapPositions(l.tid,l.over.dataset.tid);else{toast("Different shapes can't trade places. Drop it on an empty spot to move it.");schedule()}return}
+  if(Math.abs(l.dx)+Math.abs(l.dy)>3)moveTable(l.tid,l.dx,l.dy);else l.el.removeAttribute("transform");
+  if(deferred){deferred=false}schedule()}
+document.addEventListener("pointerup",endLayout,true);
+document.addEventListener("pointercancel",()=>endLayout(null),true);
+document.addEventListener("keydown",e=>{
+  if(!S.layout)return;const ft=e.target.closest&&e.target.closest(".ft"),fx=e.target.closest&&e.target.closest(".fx[data-fid]");if(!ft&&!fx)return;
+  if((e.key==="Enter"||e.key===" ")&&fx){e.preventDefault();S.sel={type:"fx",id:fx.dataset.fid};render();return}
+  const k={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];if(!k)return;
+  e.preventDefault();const st=e.shiftKey?40:10;
+  if(fx){const fid=fx.dataset.fid;moveFixture(fid,k[0]*st,k[1]*st);setTimeout(()=>{const n=document.querySelector(`.fx[data-fid="${fid}"]`);n&&n.focus()},30);return}
+  const tid=ft.dataset.tid;moveTable(tid,k[0]*st,k[1]*st);
+  setTimeout(()=>{const n=document.querySelector(`.ft[data-tid="${tid}"]`);n&&n.focus()},30);
+});
+
+/* ---------- room editor: add, inspect, resize, rotate ---------- */
+const DEF_CAP={long:10,round:10,serpentine:20,halfmoon:6,head:6};
+function nextTableNo(){const nums=tablesSorted().map(t=>{const m=/^(?:Mesa|Table) (\d+)$/.exec(t.name);return m?+m[1]:0});return (nums.length?Math.max(0,...nums):0)+1}
+function clampFx(f){const r=f.w/2,h=f.h/2;f.x=Math.round(Math.max(8+r,Math.min(1592-r,f.x)));f.y=Math.round(Math.max(8+h,Math.min(977-h,f.y)));return f}
+function moveFixture(fid,dx,dy){const f=plan().fixtures.get(fid);if(!f)return;put("fixtures",clampFx({...f,x:f.x+dx,y:f.y+dy}))}
+function addItem(spec,X,Y){
+  const [k,a,b]=spec.split(":");
+  if(k==="t"){const no=nextTableNo();const t={id:uid(),name:"Mesa "+String(no).padStart(2,"0"),capacity:DEF_CAP[a]||10,shape:a,order:no,note:"",language:"Português"};t.pos=newPos(t,X,Y);
+    put("tables",t);S.sel={type:"t",id:t.id};S.flash=t.id;toast(t_("Added {name} with {n} seats",{name:t.name,n:t.capacity}));return}
+  const sizes={square:[300,300],rect:[200,560],oval:[380,260]};
+  const wh=a==="dance"?sizes[b||"rect"]:[GEO.FX_SIZE[a].w,GEO.FX_SIZE[a].h];
+  const f=clampFx({id:"fx-"+uid().slice(0,12),kind:a,x:X,y:Y,w:wh[0],h:wh[1],label:""});if(a==="dance")f.shape=b||"rect";
+  put("fixtures",f);S.sel={type:"fx",id:f.id};S.flash=f.id;toast(t_("Added {name}",{name:GEO.fixLabel(f,UI.lang)}));
+}
+function sizeTable(t,d){const p={...t.pos};
+  if(p.x1!=null){const cx=(p.x1+p.x2)/2,cy=(p.y1+p.y2)/2,L=Math.hypot(p.x2-p.x1,p.y2-p.y1)||1,nl=Math.max(160,L+d*40),k=nl/L;p.x1=cx+(p.x1-cx)*k;p.x2=cx+(p.x2-cx)*k;p.y1=cy+(p.y1-cy)*k;p.y2=cy+(p.y2-cy)*k;["x1","x2","y1","y2"].forEach(z=>p[z]=Math.round(p[z]))}
+  else if(p.r!=null)p.r=Math.max(24,Math.min(140,p.r+d*6));
+  else if(p.h>=p.w)p.h=Math.max(40,Math.min(700,p.h+d*20));else p.w=Math.max(40,Math.min(700,p.w+d*20));
+  return shiftPos(p,0,0)}
+function rotateTable(t){const p={...t.pos};
+  if(p.x1!=null){const cx=(p.x1+p.x2)/2,cy=(p.y1+p.y2)/2;[["x1","y1"],["x2","y2"]].forEach(([a,b])=>{const dx=p[a]-cx,dy=p[b]-cy;p[a]=Math.round(cx-dy);p[b]=Math.round(cy+dx)})}
+  else if(t.shape==="halfmoon")p.rot=((p.rot||0)+90)%360;
+  else if(p.w!=null){const w=p.w;p.w=p.h;p.h=w;if(t.shape==="head")p.rot=((p.rot||0)+90)%360}
+  return shiftPos(p,0,0)}
+function renderInspector(){
+  const el=$("#inspector");if(!el)return;const sel=S.layout&&!S.readOnly&&S.sel;
+  if(!sel){el.hidden=true;el.innerHTML="";return}
+  const step=(a,b,v)=>`<span class="in-step"><button type="button" data-ins="${a}" aria-label="-">−</button>${v!=null?`<output>${v}</output>`:""}<button type="button" data-ins="${b}" aria-label="+">+</button></span>`;
+  if(sel.type==="t"){const t=plan().tables.get(sel.id);if(!t||!t.pos){S.sel=null;el.hidden=true;return}
+    el.innerHTML=`<span class="in-title">${esc(t.name)}</span>
+      <label class="in-f">${t_("Name")}<input type="text" data-in="name" value="${esc(t.name)}"></label>
+      <span class="in-f">${t_("Seats")}${step("cap-","cap+",cap(t))}</span>
+      <label class="in-f">${t_("Shape")}<select data-in="shape">${Object.keys(SHAPES).map(k=>`<option value="${k}" ${t.shape===k?"selected":""}>${t_(SHAPES[k])}</option>`).join("")}</select></label>
+      <span class="in-f">${t_("Size")}${step("size-","size+")}</span>
+      ${t.shape!=="round"?`<button type="button" class="btn sm" data-ins="rot">↻ ${t_("Rotate")}</button>`:""}
+      <span class="in-sp"></span><button type="button" class="btn sm danger" data-ins="del">${t_("Delete table")}</button><button type="button" class="btn sm" data-ins="done">${t_("Done")}</button>`}
+  else{const f=plan().fixtures.get(sel.id);if(!f){S.sel=null;el.hidden=true;return}
+    el.innerHTML=`<span class="in-title">${esc(GEO.fixLabel(f,UI.lang))}</span>
+      <label class="in-f">${t_("Label")}<input type="text" data-in="label" value="${esc(f.label||"")}" placeholder="${esc(GEO.fixLabel({...f,label:""},UI.lang))}"></label>
+      ${f.kind==="dance"?`<span class="seg sm" role="group">${["square","rect","oval"].map(k=>`<button type="button" data-ins="dshape:${k}" aria-pressed="${(f.shape||"rect")===k}">${t_({square:"Square",rect:"Rectangle",oval:"Oval"}[k])}</button>`).join("")}</span>`:""}
+      <span class="in-f">${t_("Width")}${step("w-","w+",f.w)}</span><span class="in-f">${t_("Length")}${step("h-","h+",f.h)}</span>
+      <button type="button" class="btn sm" data-ins="frot">↻ ${t_("Rotate")}</button><button type="button" class="btn sm" data-ins="dup">${t_("Duplicate")}</button>
+      <span class="in-sp"></span><button type="button" class="btn sm danger" data-ins="fdel">${t_("Delete")}</button><button type="button" class="btn sm" data-ins="done">${t_("Done")}</button>`}
+  el.hidden=false;
+}
+document.addEventListener("click",async e=>{
+  const b=e.target.closest("[data-ins]");if(!b||S.readOnly||!S.sel)return;const a=b.dataset.ins,sel=S.sel;
+  if(a==="done"){S.sel=null;render();return}
+  if(sel.type==="t"){const t=plan().tables.get(sel.id);if(!t)return;
+    if(a==="cap-"||a==="cap+"){const c=Math.max(1,Math.min(60,cap(t)+(a==="cap+"?1:-1)));put("tables",{...t,capacity:c});if(used(t.id)>c)toast(t_("{n} over the new seat count",{n:used(t.id)-c}))}
+    else if(a==="size-"||a==="size+")put("tables",{...t,pos:sizeTable(t,a==="size+"?1:-1)});
+    else if(a==="rot")put("tables",{...t,pos:rotateTable(t)});
+    else if(a==="del"){const list=guestsAt(t.id);
+      if(await confirmBox(t_("Delete {name}?",{name:t.name}),`<p>${list.length?t_("The {n} invitations seated here will move back to Not seated.",{n:list.length}):t_("This table has no one seated.")}</p>`,t_("Delete table"),true)){
+        list.forEach(g=>put("guests",{...g,tableId:null,seatedAt:null}));S.sel=null;if(S.pick===t.id)S.pick=null;del("tables",t.id);toast(t_("Deleted {name}",{name:t.name}))}}
+    return}
+  const f=plan().fixtures.get(sel.id);if(!f)return;const st=20;
+  if(a==="w-"||a==="w+")put("fixtures",clampFx({...f,w:Math.max(30,Math.min(1500,f.w+(a==="w+"?st:-st))),h:f.kind==="dance"&&f.shape==="square"?Math.max(30,Math.min(1500,f.w+(a==="w+"?st:-st))):f.h}));
+  else if(a==="h-"||a==="h+")put("fixtures",clampFx({...f,h:Math.max(30,Math.min(960,f.h+(a==="h+"?st:-st))),w:f.kind==="dance"&&f.shape==="square"?Math.max(30,Math.min(960,f.h+(a==="h+"?st:-st))):f.w}));
+  else if(a==="frot")put("fixtures",clampFx({...f,w:f.h,h:f.w}));
+  else if(a.startsWith("dshape:")){const k=a.split(":")[1],m=Math.max(f.w,f.h);put("fixtures",clampFx({...f,shape:k,w:k==="square"?m:f.w,h:k==="square"?m:f.h}))}
+  else if(a==="dup"){const n=clampFx({...f,id:"fx-"+uid().slice(0,12),x:f.x+40,y:f.y+40});put("fixtures",n);S.sel={type:"fx",id:n.id};S.flash=n.id}
+  else if(a==="fdel"){del("fixtures",f.id);S.sel=null;const old=f;toast(t_("Deleted {name}",{name:GEO.fixLabel(f,UI.lang)}),()=>put("fixtures",old))}
+});
+document.addEventListener("change",e=>{
+  const el=e.target.closest("[data-in]");if(!el||S.readOnly||!S.sel)return;const k=el.dataset.in,sel=S.sel;
+  if(sel.type==="t"){const t=plan().tables.get(sel.id);if(!t)return;
+    if(k==="name"){const v=el.value.trim();if(v&&v!==t.name)put("tables",{...t,name:v})}
+    if(k==="shape"&&el.value!==t.shape){const c=cap(t);put("tables",{...t,shape:el.value,pos:newPos({...t,shape:el.value,capacity:c},...ctrOf(t.pos))})}}
+  else{const f=plan().fixtures.get(sel.id);if(f&&k==="label")put("fixtures",{...f,label:el.value.trim()})}
+});
+document.addEventListener("keydown",e=>{
+  if(!S.layout||!S.sel||S.sel.type!=="fx"||S.readOnly)return;if(e.target.closest&&e.target.closest("input,textarea,select"))return;
+  if(e.key==="Delete"||e.key==="Backspace"){const f=plan().fixtures.get(S.sel.id);if(!f)return;e.preventDefault();del("fixtures",f.id);S.sel=null;toast(t_("Deleted {name}",{name:GEO.fixLabel(f,UI.lang)}),()=>put("fixtures",f))}
+});
+
+/* ---------- RSVP ---------- */
+function renderRSVP(){
+  const gs=[...plan().guests.values()],c={confirmed:[0,0],pending:[0,0],declined:[0,0]};gs.forEach(g=>{const k=stOf(g);c[k][0]+=sz(g);c[k][1]++});
+  const tot=c.confirmed[0]+c.pending[0]+c.declined[0]||1,w=k=>(c[k][0]/tot*100).toFixed(1)+"%";
+  $("#rsvp").innerHTML=`<h3>${t_("RSVP")}</h3>`+["confirmed","pending","declined"].map(k=>`<button class="rs-pill ${k}" data-act="rsvpf" data-v="${k}" aria-pressed="${S.rsvpF===k}"><span>${t_(RSVP[k])}</span><b>${c[k][0]}</b><small>${t_(c[k][1]===1?"{n} invitation":"{n} invitations",{n:c[k][1]})}</small></button>`).join("")+
+    `<div class="rs-bar" aria-hidden="true"><i class="c" style="width:${w("confirmed")}"></i><i class="p" style="width:${w("pending")}"></i><i class="d" style="width:${w("declined")}"></i></div>`+
+    (S.rsvpF?`<button class="linkbtn" data-act="rsvpf" data-v="">${t_("Show everyone")}</button>`:`<span class="tb-hint">${t_("Tap a box to list those guests. Change a status from the guest's edit window.")}</span>`);
+}
+
+/* ---------- auto-seat ---------- */
+async function autoSeat(){
+  const p=plan(),ts=tablesSorted().filter(t=>t.shape!=="head");
+  const un=guestsAll().filter(g=>!isSeated(g)&&live(g));
+  if(!un.length){toast("Everyone is already seated");return}
+  const free=new Map(ts.map(t=>[t.id,cap(t)-used(t.id)]));
+  const totalFree=[...free.values()].reduce((a,b)=>a+Math.max(0,b),0);
+  if(!totalFree){toast("No open seats. Add a table or raise a seat count first.");return}
+  const byG={};un.forEach(g=>{const k=g.group||"";(byG[k]=byG[k]||[]).push(g)});
+  const order=Object.keys(byG).sort((a,b)=>(a===""?1:0)-(b===""?1:0)||sumSz(byG[b])-sumSz(byG[a]));
+  const moves=[],split=[];
+  for(const k of order){let members=byG[k].slice();const used=new Set();
+    members.sort((a,b)=>sz(b)-sz(a));
+    while(members.length){
+      const minNeed=Math.min(...members.map(sz));
+      const open=ts.filter(t=>free.get(t.id)>=minNeed);if(!open.length)break;
+      // prefer a table already holding this group, then the tightest table that fits the whole group, else the roomiest
+      const need=sumSz(members);
+      const withGroup=open.filter(t=>guestsAt(t.id).some(g=>g.group&&g.group===k)||used.has(t.id));
+      let pick=withGroup.sort((a,b)=>free.get(b.id)-free.get(a.id))[0];
+      if(!pick){const fits=open.filter(t=>free.get(t.id)>=need).sort((a,b)=>free.get(a.id)-free.get(b.id));pick=fits[0]||open.sort((a,b)=>free.get(b.id)-free.get(a.id))[0]}
+      const rest=[];
+      members.forEach(g=>{if(sz(g)<=free.get(pick.id)){moves.push([g,pick.id]);free.set(pick.id,free.get(pick.id)-sz(g))}else rest.push(g)});
+      used.add(pick.id);
+      if(rest.length===members.length)break;
+      members=rest;
+    }
+    if(used.size>1&&k)split.push(k);
+  }
+  const left=sumSz(un)-sumSz(moves.map(m=>m[0]));
+  const tName=id=>p.tables.get(id).name;
+  const per={};moves.forEach(([g,t])=>{(per[t]=per[t]||[]).push(g)});
+  const body=`<p>${sumSz(moves.map(m=>m[0]))} of ${sumSz(un)} unseated people (${moves.length} invitations) will be placed, keeping each group together where the seats allow. Head tables are skipped and nobody already seated moves.</p>
+    <ul class="summary-list">${Object.entries(per).map(([t,gs])=>`<li><strong>${esc(tName(t))}</strong>: ${sumSz(gs)} people · ${esc([...new Set(gs.map(g=>g.group||"No group"))].join(", "))}</li>`).join("")}</ul>
+    ${split.length?`<p style="margin-top:8px">Split across tables: ${esc(split.join(", "))}.</p>`:""}
+    ${left?`<p style="margin-top:8px;color:var(--bad)">${left} ${left>1?"people":"person"} won't fit. Add a table or more seats for them.</p>`:""}
+    <p style="margin-top:8px">You can change any seat afterwards from the dropdowns.</p>`;
+  if(!(await confirmBox("Auto-seat by group",body,"Seat "+sumSz(moves.map(m=>m[0]))+" people")))return;
+  const now=Date.now();moves.forEach(([g,t],i)=>put("guests",{...g,tableId:t,seatedAt:now+i}));
+  toast("Seated "+sumSz(moves.map(m=>m[0]))+" people");
+}
+
+/* ---------- export ---------- */
+function rowsForExport(){
+  const out=[];tablesSorted().forEach(t=>guestsAt(t.id).forEach((g,i)=>out.push([t.name,langName(t),t_(ALC[t.alcohol]||""),i+1,g.name,sz(g),t_(RSVP[stOf(g)]),g.group||"",g.age||"",g.note||""])));
+  guestsAll().filter(g=>!isSeated(g)).forEach(g=>out.push([t_("Not seated"),"","","",g.name,sz(g),t_(RSVP[stOf(g)]),g.group||"",g.age||"",g.note||""]));
+  return out;
+}
+async function exportCSV(){
+  if(!S.dl)return;const q=v=>{v=String(v);return /[",\n;]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+  const csv="﻿"+[["Table","Language","Alcohol","Order","Invitation","Seats","RSVP","Category","Age group","Note"].map(x=>t_(x)),...rowsForExport()].map(r=>r.map(q).join(",")).join("\r\n");
+  try{await S.dl.save({filename:"Seating chart - "+evInfo(S.ev).label+".csv",data:csv});toast("CSV saved")}
+  catch(e){const c=e&&e.code;if(c==="declined")return;if(c==="rate_limited"){toast("A save prompt is already open");return}toast("Downloads aren't available here. Use Copy list instead.")}
+}
+async function exportSite(){
+  if(!S.dl)return;const p=plan();
+  const T=[...p.tables.values()].map(t=>({id:t.id,name:t.name,shape:t.shape,capacity:cap(t),pos:t.pos||null,language:t.language||"",alcohol:t.alcohol||"",order:t.order||0}));
+  const G=[...p.guests.values()].filter(g=>isSeated(g)).map(g=>({id:g.id,name:g.name,seats:sz(g),tableId:g.tableId}));
+  const un=[...p.guests.values()].filter(g=>!isSeated(g)&&live(g));
+  const F0=[...p.fixtures.values()].map(f=>({...f,label:f.label||""}));
+  if(window.PLANNER_HOST&&PLANNER_HOST.publish){
+    if(!(await confirmBox(t_("Update the guest page?"),`<p>${t_("Guests who scan the QR code will see this seating straight away.")}${un.length?" "+t_(sumSz(un)===1?"{n} person without a seat won't be on it.":"{n} people without a seat won't be on it.",{n:sumSz(un)}):""}</p>`,t_("Update guest page"))))return;
+    try{await PLANNER_HOST.publish({tables:T,guests:G,fixtures:F0});toast(t_("Guest page updated"))}catch(e){toast(t_("Couldn't update the guest page. Check your connection and try again."))}
+    return}
+  let tpl;try{const r=await fetch("lugares-template.html",{cache:"no-store"});if(!r.ok)throw 0;tpl=await r.text()}catch(e){toast("Couldn't load the page template. Reload the planner and try again.");return}
+  if(tpl.indexOf("__SEATING__")<0){toast("The page template is damaged. Ask Claude to republish it.");return}
+  const F=[...p.fixtures.values()].map(f=>({...f,label:f.label||""}));
+  const html=tpl.replace("__SEATING__",()=>JSON.stringify({tables:T,guests:G,fixtures:F}).replace(/</g,"\\u003c"));
+  try{await S.dl.save({filename:"lugares.html",data:html});toast(un.length?`Exported. ${sumSz(un)} not-seated ${sumSz(un)===1?"person isn't":"people aren't"} on the guest page.`:"Exported lugares.html. Upload it to your website to replace the old one.")}
+  catch(e){const c=e&&e.code;if(c==="declined")return;toast("Downloads aren't available here.")}
+}
+async function copyList(){
+  const ev=evInfo(S.ev);let txt=`${ev.label.toUpperCase()} · ${ev.date} · ${ev.place}\n`;
+  tablesSorted().forEach(t=>{const l=guestsAt(t.id);txt+=`\n${t.name.toUpperCase()} (${sumSz(l)}/${cap(t)})${" · "+langName(t)}${t.alcohol?" · "+ALC[t.alcohol]:""}${t.note?" · "+t.note:""}\n`;l.forEach((g,i)=>{txt+=`  ${i+1}. ${g.name}${sz(g)>1?" ["+sz(g)+"]":""}${stOf(g)==="pending"?" ("+t_("Pending").toLowerCase()+")":""}${g.note?" ("+g.note+")":""}\n`});if(!l.length)txt+="  (empty)\n"});
+  const un=guestsAll().filter(g=>!isSeated(g)&&live(g));if(un.length){txt+=`\nNOT SEATED (${sumSz(un)} people)\n`;un.forEach(g=>{txt+=`  · ${g.name}${sz(g)>1?" ["+sz(g)+"]":""}\n`})}
+  try{await navigator.clipboard.writeText(txt);toast("Seating list copied. Paste it into WhatsApp or an email.")}
+  catch(e){const ok=await confirmBox("Copy the seating list",`<p>Select all of this text and copy it.</p><textarea class="field" id="copyTA" style="min-height:260px;margin-top:10px" readonly>${esc(txt)}</textarea>`,"Done");}
+  const ta=$("#copyTA");if(ta){ta.focus();ta.select()}
+}
+
+/* ---------- import ---------- */
+const IM={sheets:null,rows:[]};
+function openImport(){IM.sheets=null;IM.rows=[];$("#pasteIn").value="";$("#fileLabel").textContent="Drop a .xlsx or .csv file here";$("#mapArea").hidden=true;$("#importGo").disabled=true;$("#importGo").textContent="Add guests";$("#importDlg").showModal();setTimeout(()=>$("#pasteIn").focus(),30)}
+function splitLine(line,sep){if(!sep)return [line.trim()];const out=[];let cur="",q=false;for(let i=0;i<line.length;i++){const c=line[i];if(q){if(c==='"'){if(line[i+1]==='"'){cur+='"';i++}else q=false}else cur+=c}else if(c==='"')q=true;else if(c===sep){out.push(cur.trim());cur=""}else cur+=c}out.push(cur.trim());return out}
+function parseText(txt){const lines=txt.replace(/\r/g,"").split("\n").filter(l=>l.trim());if(!lines.length)return [];
+  const sep=lines.some(l=>l.includes("\t"))?"\t":lines.some(l=>l.includes(";"))?";":(lines.filter(l=>l.includes(",")).length>lines.length/2?",":null);
+  return lines.map(l=>splitLine(l,sep))}
+const HEAD_NAME=/^(nome|name|convidad|guest|full ?name|nome completo)/i,HEAD_GROUP=/(grupo|group|categoria|category|famil|relac|mesa)/i,HEAD_SIDE=/(lado|side|noiv|bride|groom)/i,HEAD_NOTE=/(nota|note|obs|diet|restri)/i;
+function setRows(rows){
+  IM.rows=rows.filter(r=>r.some(c=>String(c==null?"":c).trim()));
+  if(!IM.rows.length){$("#mapArea").hidden=true;$("#importGo").disabled=true;return}
+  let hi=IM.rows.slice(0,5).findIndex(r=>r.some(c=>HEAD_NAME.test(String(c==null?"":c).trim())));if(hi>0)IM.rows=IM.rows.slice(hi);
+  const first=IM.rows[0].map(c=>String(c==null?"":c));
+  const hdr=first.some(c=>HEAD_NAME.test(c.trim()));
+  $("#mHeader").checked=hdr;
+  const ncol=Math.max(...IM.rows.slice(0,50).map(r=>r.length));
+  const label=i=>hdr&&first[i]?first[i]:"Column "+String.fromCharCode(65+i%26)+(i>=26?Math.floor(i/26):"");
+  const find=re=>hdr?first.findIndex(c=>re.test(c)):-1;
+  const opts=(none,sel)=>(none?`<option value="-1">None</option>`:"")+[...Array(ncol).keys()].map(i=>`<option value="${i}" ${i===sel?"selected":""}>${esc(label(i))}</option>`).join("");
+  let ni=find(HEAD_NAME);if(ni<0)ni=0;
+  $("#mName").innerHTML=opts(false,ni);
+  const gi=find(HEAD_GROUP);$("#mGroup").innerHTML=opts(true,gi>=0&&gi!==ni?gi:(!hdr&&ncol>1?1:-1));
+  const si=find(HEAD_SIDE);$("#mSide").innerHTML=opts(true,si>=0&&si!==ni?si:-1);
+  const zi=find(/(validade|seats|lugares|pessoas|qtd|quantidade)/i);$("#mSeats").innerHTML=opts(true,zi>=0&&zi!==ni?zi:-1);
+  const ai=find(/(idade|age)/i);$("#mAge").innerHTML=opts(true,ai>=0&&ai!==ni?ai:-1);
+  const oi=find(HEAD_NOTE);$("#mNote").innerHTML=opts(true,oi>=0&&oi!==ni?oi:-1);
+  $("#mapArea").hidden=false;updatePreview();
+}
+function sideOf(v){v=norm(v);if(!v)return "";if(/noiva|bride|ester/.test(v))return "bride";if(/noivo|groom|prince/.test(v))return "groom";if(/amb|both/.test(v))return "both";return ""}
+function mapped(){
+  const ni=+$("#mName").value,gi=+$("#mGroup").value,si=+$("#mSide").value,oi=+$("#mNote").value,zi=+$("#mSeats").value,ai=+$("#mAge").value;
+  const rows=$("#mHeader").checked?IM.rows.slice(1):IM.rows;
+  const existing=new Set([...plan().guests.values()].map(g=>norm(g.name)));const seen=new Set();
+  return rows.map(r=>{const cell=i=>i<0?"":String(r[i]==null?"":r[i]).trim();const name=cell(ni).replace(/\s+/g," ");
+    const k=norm(name);const dup=!name||existing.has(k)||seen.has(k);if(name)seen.add(k);
+    return {name,group:cell(gi),side:sideOf(cell(si)),note:cell(oi),seats:Math.max(1,parseInt(cell(zi),10)||1),age:cell(ai),dup,raw:r}});
+}
+function updatePreview(){
+  const m=mapped(),fresh=m.filter(x=>!x.dup),dups=m.filter(x=>x.dup&&x.name).length;
+  const ni=+$("#mName").value,gi=+$("#mGroup").value;
+  $("#mSummary").innerHTML=`<strong style="color:var(--fg)">${fresh.length} new invitation${fresh.length===1?"":"s"} · ${fresh.reduce((a,x)=>a+x.seats,0)} people</strong>${dups?` · ${dups} skipped because they're already on the list or repeated`:""}${fresh.length&&gi<0?" · no group column chosen":""}`;
+  const show=m.slice(0,8);const ncol=Math.max(...show.map(x=>x.raw.length),1);
+  $("#mPreview").innerHTML=`<table><thead><tr>${[...Array(ncol).keys()].map(i=>`<th>${i===ni?"Name":i===gi?"Group":String.fromCharCode(65+i%26)}</th>`).join("")}</tr></thead><tbody>${show.map(x=>`<tr class="${x.dup?"dup":""}">${[...Array(ncol).keys()].map(i=>`<td class="${i===ni?"on":""}">${esc(x.raw[i]==null?"":x.raw[i])}</td>`).join("")}</tr>`).join("")}</tbody></table>${m.length>8?`<div style="padding:6px 10px;font-size:12px;color:var(--muted)">and ${m.length-8} more rows</div>`:""}`;
+  $("#importGo").disabled=!fresh.length;$("#importGo").textContent=fresh.length?`Add ${fresh.length} guest${fresh.length===1?"":"s"}`:"Add guests";
+}
+["mName","mGroup","mSide","mNote","mSeats","mAge","mHeader"].forEach(id=>$("#"+id).addEventListener("change",updatePreview));
+$("#mSheet").addEventListener("change",e=>{setRows(IM.sheets[e.target.value]||[])});
+let pasteT=0;$("#pasteIn").addEventListener("input",e=>{clearTimeout(pasteT);pasteT=setTimeout(()=>{IM.sheets=null;$("#sheetWrap").hidden=true;setRows(parseText(e.target.value))},150)});
+function loadXLSX(){return new Promise((res,rej)=>{if(window.XLSX)return res(window.XLSX);const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";s.onload=()=>res(window.XLSX);s.onerror=rej;document.head.appendChild(s)})}
+async function readFile(file){
+  if(!file)return;$("#fileLabel").textContent="Reading "+file.name+"…";
+  try{
+    if(/\.(xlsx|xls)$/i.test(file.name)){
+      const X=await loadXLSX();const wb=X.read(await file.arrayBuffer(),{type:"array"});
+      IM.sheets={};wb.SheetNames.forEach(n=>{IM.sheets[n]=X.utils.sheet_to_json(wb.Sheets[n],{header:1,defval:"",raw:false})});
+      const names=wb.SheetNames.filter(n=>IM.sheets[n].length);
+      $("#mSheet").innerHTML=names.map(n=>`<option>${esc(n)}</option>`).join("");$("#sheetWrap").hidden=names.length<2;
+      setRows(IM.sheets[names[0]]||[]);
+    }else{$("#sheetWrap").hidden=true;setRows(parseText(await file.text()))}
+    $("#pasteIn").value="";$("#fileLabel").textContent=file.name;
+  }catch(err){$("#fileLabel").textContent="Couldn't read that file. Try saving it as .csv, or paste the names instead."}
+}
+$("#fileIn").addEventListener("change",e=>readFile(e.target.files[0]));
+const dz=$("#drop");["dragenter","dragover"].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add("drag")}));["dragleave","drop"].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove("drag")}));
+dz.addEventListener("drop",e=>readFile(e.dataTransfer.files[0]));
+function doImport(){
+  const fresh=mapped().filter(x=>!x.dup);if(!fresh.length)return;
+  const now=Date.now();fresh.forEach((x,i)=>put("guests",{id:uid(),name:x.name,group:x.group,side:x.side,note:x.note,seats:x.seats,age:x.age,tableId:null,seatedAt:null,createdAt:now+i}));
+  $("#importDlg").close();S.filter="all";toast(`Added ${fresh.length} guests to the ${evInfo(S.ev).label}`);
+}
+
+/* ---------- hosted mode: shared plan in the wedding's Firebase database ---------- */
+const FB_URL="https://ester-prince-default-rtdb.firebaseio.com";
+const HOSTED=(()=>{const h=new URLSearchParams((location.hash||"").slice(1));const k=h.get("k");return {k:k&&/^[A-Za-z0-9]{16,64}$/.test(k)?k:null,view:h.has("view")}})();
+function fbErr(r){const e=new Error("save failed");e.code=r&&r.status===401?"invalid_argument":"failed";return e}
+function fbDb(key){
+  const root=FB_URL+"/planner/"+key;const listeners={};let tree=null,es=null,firstCb=[],got=false;
+  const enc=p=>p.split("/").map(encodeURIComponent).join("/");
+  function emit(){for(const p in listeners){const node=p.split("/").reduce((o,k)=>o&&typeof o==="object"?o[k]:undefined,tree)||{};
+    const docs=Object.keys(node).filter(id=>node[id]&&typeof node[id]==="object").map(id=>({id,data:()=>node[id]}));listeners[p].forEach(l=>l.cb({docs}))}}
+  function setAt(path,val,merge){const ks=path.split("/").filter(Boolean);if(!ks.length){if(merge&&tree&&val&&typeof val==="object")Object.assign(tree,val);else tree=val;return}
+    if(!tree||typeof tree!=="object")tree={};let o=tree;for(let i=0;i<ks.length-1;i++){if(!o[ks[i]]||typeof o[ks[i]]!=="object")o[ks[i]]={};o=o[ks[i]]}
+    const last=ks[ks.length-1];if(merge&&val&&typeof val==="object"){if(!o[last]||typeof o[last]!=="object")o[last]={};for(const k in val){if(val[k]===null)delete o[last][k];else o[last][k]=val[k]}}else if(val===null)delete o[last];else o[last]=val}
+  function start(){if(es)return;es=new EventSource(root+".json");
+    es.addEventListener("put",ev=>{const m=JSON.parse(ev.data);setAt(m.path,m.data,false);got=true;emit();const f=firstCb;firstCb=[];f.forEach(x=>x(tree))});
+    es.addEventListener("patch",ev=>{const m=JSON.parse(ev.data);setAt(m.path,m.data,true);emit()});
+    es.addEventListener("cancel",()=>{for(const p in listeners)listeners[p].forEach(l=>l.err&&l.err({code:"revoked"}))});
+    es.addEventListener("auth_revoked",()=>{for(const p in listeners)listeners[p].forEach(l=>l.err&&l.err({code:"revoked"}))});
+    es.onerror=()=>{if(es.readyState===2)for(const p in listeners)listeners[p].forEach(l=>l.err&&l.err({code:"revoked"}))}}
+  async function req(method,path,body){const r=await fetch(root+"/"+enc(path)+".json",{method,headers:{"content-type":"application/json"},body:body===undefined?undefined:JSON.stringify(body)});if(!r.ok)throw fbErr(r);return r}
+  return {
+    collection(path){return {onSnapshot(cb,err){(listeners[path]=listeners[path]||[]).push({cb,err});start();if(got)emit()},
+      doc(id){return {set:b=>req("PUT",path+"/"+id,b),delete:()=>req("DELETE",path+"/"+id)}}}},
+    loaded(){return new Promise(res=>{if(got)res(tree);else{firstCb.push(res);start()}})},
+    replaceEvent(ev,data){return req("PUT","plans/"+ev,data)},
+  };
+}
+const webDl={async save({filename,data}){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([data],{type:/\.csv$/.test(filename)?"text/csv;charset=utf-8":"text/html;charset=utf-8"}));a.download=filename;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}};
+window.__pub=()=>publishGuests();
+async function publishGuests(){
+  if(S.readOnly)return;const p=plan();
+  const T=[...p.tables.values()].map(t=>({id:t.id,name:t.name,shape:t.shape,capacity:cap(t),pos:t.pos||null,language:t.language||"",alcohol:t.alcohol||"",order:t.order||0}));
+  const G=[...p.guests.values()].filter(g=>isSeated(g)).map(g=>({id:g.id,name:g.name,seats:sz(g),tableId:g.tableId}));
+  const F=[...p.fixtures.values()].map(f=>({...f,label:f.label||""}));
+  if(!await confirmBox(t_("Update the guest page?"),`<p>${t_("Guests who scan the QR code will see this seating straight away: {n} invitations at {m} tables.",{n:G.length,m:T.length})}</p>`,t_("Update guest page")))return;
+  try{const r=await fetch(FB_URL+"/lugares.json",{method:"PUT",headers:{"content-type":"application/json"},body:JSON.stringify({tables:T,guests:G,fixtures:F,at:{".sv":"timestamp"}})});if(!r.ok)throw 0;toast(t_("Guest page updated"))}
+  catch(e){toast(t_("Couldn't update the guest page. Check your connection and try again."))}
+}
+function showImport(){const bn=$("#banner");bn.hidden=false;bn.className="banner";
+  bn.innerHTML=`<span>${t_("This plan is empty. Load the plan file you were sent to start from the current seating.")}</span> <label class="btn sm primary" style="margin-left:8px;cursor:pointer">${t_("Load plan file")}<input type="file" accept=".json,application/json" id="planFile" hidden></label>`;
+  $("#planFile").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());const m=a=>Object.fromEntries((a||[]).map(({id,...b})=>[id,b]));
+    if(!d.tables||!d.guests)throw 0;await S.db.replaceEvent("wedding",{tables:m(d.tables),guests:m(d.guests),fixtures:m(d.fixtures)});bn.hidden=true;toast(t_("Plan loaded"))}catch(x){toast(t_("That file isn't a plan file."))}}}
+
+/* ---------- boot ---------- */
+async function boot(){
+  startI18n();render();
+  const c=window.claude;let db=null,user=null,dl=null;
+  if(c&&typeof c.use==="function"){
+    [db,user,dl]=await Promise.all([c.use("db").catch(()=>null),c.use("user").catch(()=>null),c.use("downloads").catch(()=>null)]);
+  }
+  let hostedRO=false;
+  if(!db&&HOSTED.k){db=fbDb(HOSTED.k);dl=webDl;hostedRO=HOSTED.view;S.hosted=true}
+  S.dl=dl;
+  if(db){
+    S.db=db;S.mode="shared";
+    if(user&&typeof user.can==="function"){try{const w=await user.can("data.write");if(w===false){S.readOnly=true;applyRO()}}catch(e){}}
+    if(hostedRO){S.readOnly=true;applyRO()}
+    if(!S.readOnly){S.banner=null}
+    EVENTS.forEach(e=>["tables","guests","fixtures"].forEach(kind=>{
+      db.collection("plans/"+e.id+"/"+kind).onSnapshot(snap=>{
+        const m=S.plans[e.id][kind];m.clear();snap.docs.forEach(d=>{const v=d.data();if(v)m.set(d.id,{...v,id:d.id})});schedule();
+      },err=>handleErr(err));
+    }));
+  }else{
+    S.mode="local";loadLocal();
+    const bn=$("#banner");bn.hidden=false;bn.className="banner";bn.textContent="This view saves to this browser only. Open the plan from your Claude chat to keep one shared copy across your devices.";
+  }
+  render();
+  if(S.hosted){$("#publishBtn").hidden=S.readOnly;$("#exportSite").hidden=true;
+    db.loaded().then(tr=>{const w=tr&&tr.plans&&tr.plans.wedding;if(!S.readOnly&&(!w||!w.guests))showImport()})}
+  else if(!db&&/github\.io$/.test(location.hostname)){const bn=$("#banner");bn.textContent=t_("This link is missing its access code. Open the planner from the full link you were sent.")}
+}
+boot();
+})();
+</script>
+
+
+</body></html>
